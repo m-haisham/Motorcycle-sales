@@ -1,5 +1,6 @@
 package com.cerberus;
 
+import com.cerberus.input.confirm.ConfirmMenu;
 import com.cerberus.input.selection.SelectionItem;
 import com.cerberus.input.selection.SelectionMenu;
 import com.cerberus.input.selection.SelectionOption;
@@ -34,7 +35,18 @@ public class Main {
 
         SelectionMenu details = SelectionMenu.create("Customer Details", new SelectionItem[] {
                 SelectionOption.create("Full name", () -> {
-                    System.out.println(customer.getFullName());
+
+                    ConfirmMenu.create("Are you sure?",
+                            (/* when chosen yes */) -> {
+                                System.out.println(customer.getFullName());
+                                return true;
+                            },
+                            (/* when chosen no */) -> {
+                                System.out.println("Too bad");
+                                return true;
+                            }
+                    ).prompt();
+
                     return true;
                 }),
                 SelectionOption.create("Age", () -> {
