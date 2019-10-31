@@ -1,5 +1,9 @@
 package com.cerberus;
 
+import com.cerberus.input.selection.SelectionItem;
+import com.cerberus.input.selection.SelectionMenu;
+import com.cerberus.input.selection.SelectionOption;
+import com.cerberus.input.selection.SelectionSeperator;
 import com.cerberus.motorcycle.Motorcycle;
 import com.cerberus.motorcycle.MotorcycleBrand;
 import com.cerberus.motorcycle.MotorcycleCylinderVolume;
@@ -15,6 +19,7 @@ import java.time.LocalDate;
 public class Main {
 
     public static void main(String[] args) {
+
         Customer customer = new Customer("Jon", "Doe", "A258771", LocalDate.parse("2001-08-16"));
         Motorcycle cycle = new Motorcycle(
                 "Honda",
@@ -27,19 +32,26 @@ public class Main {
         customer.addPayment(new Payment(cycle, PurchaseType.purchase));
         customer.setLease(cycle, 24);
 
-        System.out.println(customer.getId());
+        SelectionMenu details = SelectionMenu.create("Customer Details", new SelectionItem[] {
+                SelectionOption.create("Full name", () -> {
+                    System.out.println(customer.getFullName());
+                    return true;
+                }),
+                SelectionOption.create("Age", () -> {
+                    System.out.println(customer.getAge());
+                    return true;
+                }),
+                SelectionOption.create("ID", () -> {
+                    System.out.println(customer.getId());
+                    return true;
+                }),
+                SelectionSeperator.create(" "),
+                SelectionOption.create("Exit", () -> { return true; })
 
-        System.out.println(customer.getAge());
+        });
 
-//        Gson gson = new Gson();
-//        try {
-//            FileWriter file = new FileWriter(new File("motorcycle.json"));
-//            String jsonData = gson.toJson(cycle);
-//            file.write(jsonData);
-//            file.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        details.prompt();
+
 
     }
 }

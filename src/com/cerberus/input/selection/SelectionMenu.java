@@ -192,7 +192,7 @@ public class SelectionMenu extends Menu {
 
             }
 
-            if (parsed >= 0 && parsed <= this.getItems().size() - offset) // if out of bounds
+            if (parsed < 0 && parsed > this.getItems().size() - offset) // if out of bounds
                 return -1;
 
             return parsed + offset;
