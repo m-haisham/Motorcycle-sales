@@ -1,4 +1,4 @@
-package com.cerberus.motorcycle;
+package com.cerberus.models.motorcycle;
 
 public enum MotorcycleTransmissionType {
     Manual,

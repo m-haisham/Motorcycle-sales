@@ -1,9 +1,11 @@
 package com.cerberus.register;
 
-import com.cerberus.motorcycle.Motorcycle;
-import com.cerberus.motorcycle.MotorcycleBrand;
-import com.cerberus.motorcycle.MotorcycleCylinderVolume;
-import com.cerberus.motorcycle.MotorcycleTransmissionType;
+import com.cerberus.models.motorcycle.Motorcycle;
+import com.cerberus.models.motorcycle.MotorcycleBrand;
+import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
+import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
+import com.cerberus.register.event.Event;
+import com.cerberus.register.event.PaymentEvent;
 import com.cerberus.sale.Lease;
 
 import java.time.LocalDate;
@@ -23,19 +25,16 @@ public class Customer {
     private final LocalDate birthDate;
 
     /**
-     * if customer is currently leasing a motorcycle
-     */
-    private boolean leased;
-
-    /**
      * Motorcycle lease by customer
      */
-    private Lease lease; // allow for multiple leases
+    private ArrayList<Lease> leases;
+
+    private int maxLeases;
 
     /**
      * Payment log of motorcycles
      */
-    private final ArrayList<Payment> paymentLog = new ArrayList<>();
+    private ArrayList<Event> history = new ArrayList<>();
 
     /**
      * Default constructor
@@ -48,7 +47,8 @@ public class Customer {
         lastName = _lastName;
         nationalId = _nationalId;
         birthDate = _birthDate;
-        leased = false;
+        leases = new ArrayList<>();
+        maxLeases = 1;
     }
 
     /**
@@ -97,32 +97,37 @@ public class Customer {
     }
 
     /**
-     * getter for {@link #paymentLog}
-     * @return {@link #paymentLog}
+     * getter for {@link #history}
+     * @return {@link #history}
      */
-    public ArrayList<Payment> getpaymentLog() {
-        return paymentLog;
+    public ArrayList<Event> gethistory() {
+        return history;
+    }
+
+    public void setHistory(ArrayList<Event> history) {
+        this.history = history;
     }
 
     /**
-     * Add Payment to Payment log of customer
-     * @param _Payment Payment object to be added to log
+     * Add Event to History of customer
+     * @param event history object to be added to log
      */
-    public void addPayment(Payment _Payment) {
-        paymentLog.add(_Payment);
+    public void addEvent(Event event) {
+        this.history.add(event);
     }
 
     /**
-     * creates a motorcycle using {@link com.cerberus.motorcycle.Motorcycle} default constructor
-     * creates Payment using {@link com.cerberus.register.Payment} and motorcycle
-     * then Payment to {@link #paymentLog}
-     * @param _name name of motorcycle Paymentd
-     * @param _price price of motorcycle Paymentd
-     * @param _type type of motorcycle Paymentd
+     * creates a motorcycle using {@link com.cerberus.models.motorcycle.Motorcycle} default constructor
+     * creates Payment using {@link PaymentEvent} and motorcycle
+     * then Payment to {@link #history}
+     * @param _name name of motorcycle
+     * @param _price price of motorcycle
+     * @param _type type of motorcycle
+     * @param _paymentType type of payment
      */
-    public void addPayment(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _power) {
+    public void addPayment(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _power, PurchaseType _purchaseType, PaymentType _paymentType) {
         Motorcycle cycle = new Motorcycle(_name, _price, _type, _brand, _power);
-        paymentLog.add(new Payment(cycle, PurchaseType.purchase));
+        this.addEvent(new PaymentEvent(cycle, _purchaseType, _paymentType));
     }
 
     /**
@@ -136,26 +141,36 @@ public class Customer {
      * @return whether the customer is leasing a motorcycle
      */
     public boolean isLeased() {
-        return leased;
+        return this.leases.size() == 0;
     }
 
     /**
      * @return lease of customer
      */
-    public Lease getLease() {
-        return lease;
+    public ArrayList<Lease> getLeases() {
+        return this.leases;
     }
 
     /**
      * sets the lease of the customer
-     * @param motorcycle motorcycle leased
-     * @param duration duration in months
+     * @param leases leases to be set
      */
-    public void setLease(Motorcycle motorcycle, int duration) {
-        if (!leased) {
-            leased = true;
-            Lease _lease = new Lease(motorcycle, duration);
-            lease = _lease;
+    public void setLease(ArrayList<Lease> leases) throws MaxLeaseExceedException {
+        if (leases.size() <= maxLeases) {
+            this.leases = leases;
+        } else {
+            throw new MaxLeaseExceedException("size exceeds max leases amount");
+        }
+    }
+
+    /**
+     * add lease to leases list after
+     */
+    public void addLease(Lease lease) throws MaxLeaseExceedException {
+        if (leases.size() < maxLeases) {
+            this.leases.add(lease);
+        } else {
+            throw new MaxLeaseExceedException("Leases are maxed out");
         }
     }
 

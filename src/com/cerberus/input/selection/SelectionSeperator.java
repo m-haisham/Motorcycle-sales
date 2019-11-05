@@ -27,7 +27,7 @@ public class SelectionSeperator implements SelectionItem {
         return new SelectionSeperator();
     }
 
-    public static SelectionSeperator create(String symbol) {
+    public static SelectionSeperator symbol(String symbol) {
         SelectionSeperator separator = new SelectionSeperator();
 
         separator.setSymbol(symbol);
@@ -35,11 +35,17 @@ public class SelectionSeperator implements SelectionItem {
         return separator;
     }
 
-    public static SelectionSeperator create(int length) {
+    public static SelectionSeperator length(int length) {
         SelectionSeperator separator = new SelectionSeperator();
 
         separator.setLength(length);
 
+        return separator;
+    }
+
+    public static SelectionSeperator empty() {
+        SelectionSeperator separator = new SelectionSeperator();
+        separator.setLength(0);
         return separator;
     }
 

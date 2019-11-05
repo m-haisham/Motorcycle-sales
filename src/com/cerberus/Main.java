@@ -1,20 +1,21 @@
 package com.cerberus;
 
 import com.cerberus.input.confirm.ConfirmMenu;
-import com.cerberus.input.selection.SelectionItem;
-import com.cerberus.input.selection.SelectionMenu;
-import com.cerberus.input.selection.SelectionOption;
-import com.cerberus.input.selection.SelectionSeperator;
-import com.cerberus.motorcycle.Motorcycle;
-import com.cerberus.motorcycle.MotorcycleBrand;
-import com.cerberus.motorcycle.MotorcycleCylinderVolume;
-import com.cerberus.motorcycle.MotorcycleTransmissionType;
+import com.cerberus.input.selection.*;
+import com.cerberus.models.motorcycle.Motorcycle;
+import com.cerberus.models.motorcycle.MotorcycleBrand;
+import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
+import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
 import com.cerberus.register.Customer;
-import com.cerberus.register.Payment;
+import com.cerberus.register.MaxLeaseExceedException;
+import com.cerberus.register.PaymentType;
+import com.cerberus.register.event.PaymentEvent;
 
 import com.cerberus.register.PurchaseType;
+import com.cerberus.sale.Lease;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 
 public class Main {
@@ -30,10 +31,15 @@ public class Main {
                 MotorcycleCylinderVolume.v150
         );
 
-        customer.addPayment(new Payment(cycle, PurchaseType.purchase));
-        customer.setLease(cycle, 24);
+        customer.addEvent(new PaymentEvent(cycle, PurchaseType.purchase, PaymentType.cash));
 
-        SelectionMenu details = SelectionMenu.create("Customer Details", new SelectionItem[] {
+        try {
+            customer.setLease(new ArrayList<>());
+        } catch (MaxLeaseExceedException e) {
+            e.printStackTrace();
+        }
+
+        SelectionMenu.create("Customer Details", new SelectionItem[] {
                 SelectionOption.create("Full name", () -> {
 
                     ConfirmMenu.create("Are you sure?",
@@ -57,13 +63,10 @@ public class Main {
                     System.out.println(customer.getId());
                     return true;
                 }),
-                SelectionSeperator.create(" "),
+                SelectionSeperator.empty(),
                 SelectionOption.create("Exit", () -> { return true; })
 
-        });
-
-        details.prompt();
-
+        }).prompt();
 
     }
 }

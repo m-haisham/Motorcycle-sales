@@ -71,10 +71,9 @@ public class SelectionMenu extends Menu {
 
         // default header print
         this.setHeader((String l) -> {
-            String separator = constructString("-", l.length() + this.getPaddingLength() * 2);
-            System.out.println(/* get some space */);
-            System.out.println(this.padding()+l);
-            System.out.println(separator);
+            System.out.println(); // get some space
+            System.out.println(": "+l);
+            System.out.println(); // get some more space
         });
 
         // default list print
@@ -143,14 +142,9 @@ public class SelectionMenu extends Menu {
      */
     public void prompt() {
 
-        header.call(this.getLabel());
+        // get index
+        int responseIndex = this.promptNoAction();
 
-        list.call(this.getItems());
-
-        String response = input.call(scan);
-
-        // parse and do appropriate option
-        int responseIndex = this.parseResponse(response);
         if (responseIndex == -1) {
             System.out.println(this.getFailedMessage());
             this.prompt();
@@ -161,6 +155,20 @@ public class SelectionMenu extends Menu {
             System.out.println(this.getFailedMessage());
             this.prompt();
         }
+    }
+
+    /**
+     * @return choice selected
+     */
+    public int promptNoAction() {
+        header.call(this.getLabel());
+
+        list.call(this.getItems());
+
+        String response = input.call(scan);
+
+        // parse appropriate option
+        return this.parseResponse(response);
     }
 
     /**
@@ -203,9 +211,10 @@ public class SelectionMenu extends Menu {
             for (int i = 0; i < this.getItems().size(); i++) {
                 SelectionItem item = this.getItems().get(i);
 
-                if (response.equalsIgnoreCase(((SelectionOption) item).getLabel())) {
-                    return i;
-                }
+                if (item.getClass() == SelectionOption.class)
+                    if (response.equalsIgnoreCase(((SelectionOption) item).getLabel())) {
+                        return i;
+                    }
             }
 
             // no matching label

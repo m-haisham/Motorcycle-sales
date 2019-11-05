@@ -1,6 +1,6 @@
 package com.cerberus.sale;
 
-import com.cerberus.motorcycle.Motorcycle;
+import com.cerberus.models.motorcycle.Motorcycle;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
