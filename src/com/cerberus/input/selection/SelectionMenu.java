@@ -158,7 +158,7 @@ public class SelectionMenu extends Menu {
     }
 
     /**
-     * @return choice selected
+     * @return if valid, index pointing to item else -1
      */
     public int promptNoAction() {
         header.call(this.getLabel());
@@ -194,7 +194,7 @@ public class SelectionMenu extends Menu {
                 }
 
                 // if input is same as current i, break loop
-                if (i == parsed) {
+                if (i - offset == parsed) {
                     break;
                 }
 
