@@ -45,26 +45,25 @@ public class Main {
                     ConfirmMenu.create("Are you sure?",
                             (/* when chosen yes */) -> {
                                 System.out.println(customer.getFullName());
-                                return true;
+                                return null;
                             },
                             (/* when chosen no */) -> {
                                 System.out.println("Too bad");
-                                return true;
+                                return null;
                             }
                     ).prompt();
-
-                    return true;
-                }),
+                    return null;
+                }, new String[] {"name"}),
                 SelectionOption.create("Age", () -> {
                     System.out.println(customer.getAge());
-                    return true;
+                    return null;
                 }),
                 SelectionOption.create("ID", () -> {
                     System.out.println(customer.getId());
-                    return true;
+                    return null;
                 }),
                 SelectionSeperator.empty(),
-                SelectionOption.create("Exit", () -> { return true; })
+                SelectionOption.create("Exit", () -> null)
 
         }).prompt();
 

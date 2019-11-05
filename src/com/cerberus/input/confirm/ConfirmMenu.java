@@ -27,13 +27,13 @@ public class ConfirmMenu extends Menu {
         this.hint = hint;
     }
 
-    private Callable<Boolean> actionYes = () -> { throw new NotImplementedException(); };
-    public void setActionYes(Callable<Boolean> actionYes) {
+    private Callable<Void> actionYes = () -> { throw new NotImplementedException(); };
+    public void setActionYes(Callable<Void> actionYes) {
         this.actionYes = actionYes;
     }
 
-    private Callable<Boolean> actionNo = null;
-    public void setActionNo(Callable<Boolean> actionNo) {
+    private Callable<Void> actionNo = null;
+    public void setActionNo(Callable<Void> actionNo) {
         this.actionNo = actionNo;
     }
 
@@ -43,7 +43,7 @@ public class ConfirmMenu extends Menu {
         this.setQuestion("Are you sure?");
     }
 
-    public static ConfirmMenu create(String question, Callable<Boolean> actionYes) {
+    public static ConfirmMenu create(String question, Callable<Void> actionYes) {
         ConfirmMenu menu = new ConfirmMenu();
 
         menu.setQuestion(question);
@@ -52,7 +52,7 @@ public class ConfirmMenu extends Menu {
         return menu;
     }
 
-    public static ConfirmMenu create(String question, Callable<Boolean> actionYes, Callable<Boolean> actionNo) {
+    public static ConfirmMenu create(String question, Callable<Void> actionYes, Callable<Void> actionNo) {
         ConfirmMenu menu = new ConfirmMenu();
 
         menu.setQuestion(question);
@@ -88,7 +88,7 @@ public class ConfirmMenu extends Menu {
             case 0: // no
                 try {
                     this.actionNo.call();
-                } catch (NullPointerException e) {}
+                } catch (NullPointerException ignored) {}
                 break;
 
             default: // don't know
@@ -100,8 +100,8 @@ public class ConfirmMenu extends Menu {
     }
 
     private int parseResponse(String response) {
-        if (response.equalsIgnoreCase("y")) return 1;
-        else if(response.equalsIgnoreCase("n")) return 0;
+        if (response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes")) return 1;
+        else if(response.equalsIgnoreCase("n") || response.equalsIgnoreCase("no")) return 0;
         else return -1;
     }
 

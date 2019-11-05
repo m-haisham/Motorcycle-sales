@@ -7,6 +7,7 @@ import com.cerberus.input.selection.callers.ListCaller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -207,13 +208,22 @@ public class SelectionMenu extends Menu {
         }
         catch (NumberFormatException e) {
 
+            // lowercase response
+            response = response.toLowerCase();
+
             // check for matching label
             for (int i = 0; i < this.getItems().size(); i++) {
                 SelectionItem item = this.getItems().get(i);
 
                 if (item.getClass() == SelectionOption.class)
-                    if (response.equalsIgnoreCase(((SelectionOption) item).getLabel())) {
+                    if (response.equalsIgnoreCase(((SelectionOption) item).getLabel())) { // response equals to label
                         return i;
+                    }else if(((SelectionOption) item).getMatchers().length > 0){ // look for matching in options matchers
+                        String[] matchers = ((SelectionOption) item).getMatchers();
+
+                        if (Arrays.asList(matchers).contains(response))
+                            return i;
+
                     }
             }
 
