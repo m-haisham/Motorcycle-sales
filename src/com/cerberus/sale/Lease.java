@@ -3,6 +3,7 @@ package com.cerberus.sale;
 import com.cerberus.models.motorcycle.Motorcycle;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Lease {
@@ -11,9 +12,15 @@ public class Lease {
 
     private double totalPrice;
 
-    private InstallmentSlice[] installmentSlices;
+    private Installment[] installmentSlices;
 
     private Motorcycle motorcycle;
+
+    private final LocalDateTime timeLeased;
+
+    public LocalDateTime getTimeLeased() {
+        return timeLeased;
+    }
 
     /**
      * default constructor
@@ -28,10 +35,13 @@ public class Lease {
         double monthlyPayment = totalPrice / length;
         LocalDate currentDate = LocalDate.now();
 
-        installmentSlices = new InstallmentSlice[length];
+        installmentSlices = new Installment[length];
         for (int i = 0; i < installmentSlices.length; i++) {
-            installmentSlices[i] = new InstallmentSlice(monthlyPayment, currentDate.plusMonths(i));
+            installmentSlices[i] = new Installment(monthlyPayment, currentDate.plusMonths(i));
         }
+
+        // set leased time
+        this.timeLeased = LocalDateTime.now();
     }
 
     /**
@@ -61,7 +71,7 @@ public class Lease {
     /**
      * @return current installmentSlices
      */
-    public InstallmentSlice[] getinstallmentSlices() {
+    public Installment[] getinstallmentSlices() {
         return installmentSlices;
     }
 
@@ -74,9 +84,9 @@ public class Lease {
 
     /**
      * pays installment
-     * @param _months amount months to pay interest for
+     * @param _months amount of months to pay interest for
      */
-    public void payinstallmentSlices(int _months) {
+    public void payinstallments(int _months) {
         for (int i = 0; i < installmentSlices.length; i++) {
             if (_months <= 0) {
                 return;
@@ -90,26 +100,41 @@ public class Lease {
     }
 
     /**
-     * @return list of installmentSlices unpaid up to today and installmentSlices in next 30 days
+     * @return list of installment indexes unpaid up to today and installmentSlices in next 30 days
      */
-    public ArrayList<InstallmentSlice> installmentSlicesDue() {
+    public ArrayList<Integer> installmentsDue() {
         LocalDate currentDate = LocalDate.now();
 
-        ArrayList<InstallmentSlice> installmentSlicesDue = new ArrayList<>();
+        ArrayList<Integer> installmentSlicesDue = new ArrayList<>();
         for (int i = 0; i < installmentSlices.length; i++) {
-            InstallmentSlice currentInstallmentSlice = installmentSlices[i];
+            Installment currentInstallmentSlice = installmentSlices[i];
             if (Math.abs(currentInstallmentSlice.getDueDate().getMonth().getValue() - currentDate.getMonth().getValue() ) <= 1 // check if any this installment in proximity
                     && currentInstallmentSlice.getDueDate().isAfter(currentDate)) { // check if installment date is after
+
                 // due in next 30 days
                 if (!currentInstallmentSlice.isPaid())
-                    installmentSlicesDue.add(currentInstallmentSlice);
+                    installmentSlicesDue.add(i);
                 break;
             } else if (!currentInstallmentSlice.isPaid()
                         && currentInstallmentSlice.getDueDate().isBefore(currentDate))
-                installmentSlicesDue.add(currentInstallmentSlice);
+                installmentSlicesDue.add(i);
         }
         return installmentSlicesDue;
     }
 
-    // filter paid and unpaid
+    /**
+     * @return FilteredLease object containing all filters
+     */
+    public FilteredLease filterLeases() {
+        ArrayList<Integer> paid = new ArrayList<>();
+        ArrayList<Integer> unpaid = new ArrayList<>();
+
+        for (int i = 0; i < installmentSlices.length; i++)
+            if (installmentSlices[i].isPaid())
+                paid.add(i);
+            else
+                unpaid.add(i);
+
+        return new FilteredLease(paid.toArray(new Integer[0]), unpaid.toArray(new Integer[0]));
+    }
 }

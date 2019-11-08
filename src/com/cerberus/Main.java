@@ -1,28 +1,32 @@
 package com.cerberus;
 
 import com.cerberus.input.confirm.ConfirmMenu;
+import com.cerberus.input.query.Query;
 import com.cerberus.input.selection.*;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.cerberus.models.motorcycle.MotorcycleBrand;
 import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
 import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
 import com.cerberus.register.Customer;
-import com.cerberus.register.MaxLeaseExceedException;
+import com.cerberus.register.exceptions.MaxLeaseExceedException;
 import com.cerberus.register.PaymentType;
 import com.cerberus.register.event.PaymentEvent;
 
 import com.cerberus.register.PurchaseType;
-import com.cerberus.sale.Lease;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 
 public class Main {
 
+    public static ArrayList<Customer> customerRegistry = new ArrayList<>();
+
     public static void main(String[] args) {
 
-        Customer customer = new Customer("Jon", "Doe", "A258771", LocalDate.parse("2001-08-16"));
+
+        /*Customer customer = new Customer("Jon", "Doe", "A258771", LocalDate.parse("2001-08-16"));
         Motorcycle cycle = new Motorcycle(
                 "Honda",
                 81000,
@@ -37,7 +41,10 @@ public class Main {
             customer.setLease(new ArrayList<>());
         } catch (MaxLeaseExceedException e) {
             e.printStackTrace();
-        }
+        }*/
+
+        addCustomer();
+        Customer customer = customerRegistry.get(0);
 
         SelectionMenu.create("Customer Details", new SelectionItem[] {
                 SelectionOption.create("Full name", () -> {
@@ -67,5 +74,19 @@ public class Main {
 
         }).prompt();
 
+    }
+
+    public static void addCustomer() {
+
+        Query query = Query.create();
+
+        String firstName = query.ask("First name: ", Scanner::nextLine);
+        String lastName = query.ask("Last name: ", Scanner::nextLine);
+        String id = query.ask("National ID: ", Scanner::nextLine);
+        String birthday = query.ask("Birth date (yyyy-MM-dd): ", Scanner::nextLine);
+
+        customerRegistry.add(new Customer(firstName, lastName, id, LocalDate.parse(birthday)));
+
+        System.out.println(customerRegistry);
     }
 }

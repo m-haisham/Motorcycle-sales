@@ -1,8 +1,11 @@
 package com.cerberus.sale;
 
-import java.time.LocalDate;
+import com.cerberus.sale.exceptions.DateSegmentError;
 
-public class InstallmentSlice {
+import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
+
+public class Installment {
 
     private boolean paid = false;
     private double amount;
@@ -14,7 +17,7 @@ public class InstallmentSlice {
      * @param _amount money needed to be paid
      * @param _dueDate due date for installment
      */
-    public InstallmentSlice(double _amount, LocalDate _dueDate){
+    public Installment(double _amount, LocalDate _dueDate){
         amount = _amount;
         dueDate = _dueDate;
     }
@@ -30,8 +33,18 @@ public class InstallmentSlice {
      * adds penalty to amount
      * @param rate interest rate to be applied to calculate penalty
      */
-    public void addPenalty(float rate) {
-        amount = amount * (1 + rate);
+    public void addPenaltyByRate(float rate) throws DateSegmentError {
+        if (dueDate.isAfter(LocalDate.now()))
+            throw new DateSegmentError("Due date has not yet been reached");
+
+        int yearsUnpaid = LocalDate.now().getYear() - dueDate.getYear();
+        int monthsUnpaid = LocalDate.now().getMonth().getValue() - dueDate.getMonth().getValue();
+        amount = amount * /* full interest percent */(rate * /* months unpaid */(yearsUnpaid * 12 + monthsUnpaid));
+        penaltyAdded = true;
+    }
+
+    public void addPenalty(double amount) {
+        this.amount += amount;
         penaltyAdded = true;
     }
 

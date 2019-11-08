@@ -29,7 +29,7 @@ public class Menu {
     }
 
     /**
-     * Show and ask and execute appropriate function
+     * Show, ask and execute appropriate function
      */
     public void prompt() {
         throw new NotImplementedException();

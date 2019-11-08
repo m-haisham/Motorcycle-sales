@@ -6,7 +6,10 @@ import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
 import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
 import com.cerberus.register.event.Event;
 import com.cerberus.register.event.PaymentEvent;
+import com.cerberus.register.exceptions.MaxLeaseExceedException;
+import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
+import com.cerberus.sale.exceptions.DateSegmentError;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -174,4 +177,50 @@ public class Customer {
         }
     }
 
+    /**
+     * removes {@param lease} from the list of leases
+     * @param lease to be removed
+     * @throws IndexOutOfBoundsException when {@param lease} does not exist
+     */
+    public void removeLease(Lease lease) throws IndexOutOfBoundsException {
+        int index = leases.indexOf(lease);
+
+        // check if it exists
+        if (index == -1)
+            throw new IndexOutOfBoundsException("lease no such lease exists");
+
+        // remove
+        leases.remove(index);
+    }
+
+    /**
+     * pay for leased vehicle
+     * @param index lease index
+     * @param segments number of segments to pay for
+     * @param paymentType type of payment
+     */
+    public void payLeases(int index, int segments, PaymentType paymentType) {
+        Lease lease = this.leases.get(index);
+
+        for (Integer i : lease.installmentsDue()) {
+            // if no segments left to update, end loop
+            if (segments < 1) break;
+
+            Installment installment = lease.getinstallmentSlices()[i];
+
+            // try to add penalty
+            try {
+                installment.addPenaltyByRate(Lease.getInterestRate());
+            } catch (DateSegmentError ignored) { }
+
+            // pay
+            installment.setPaid(true);
+
+            PaymentEvent event = new PaymentEvent(lease.getMotorcycle(), PurchaseType.lease, paymentType);
+
+            // update segments left
+            segments--;
+        }
+
+    }
 }
