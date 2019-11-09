@@ -1,5 +1,7 @@
 package com.cerberus.models.motorcycle;
 
+import com.cerberus.models.motorcycle.engine.Engine;
+
 import java.util.UUID;
 
 /**
@@ -15,19 +17,26 @@ public class Motorcycle {
     private final MotorcycleBrand brand;
     private final MotorcycleCylinderVolume cylinderVolume;
 
+    private final Engine engineType;
+    private float gasolineTankCapacity;
+
     /**
-     * default contructor
+     * default constructor
      * @param _name name of motorcycle
      * @param _price price of motorcycle
      * @param _type type of motorcycle
+     * @param engineType type of engine equipped on motorcycle
+     * @param gasolineTankCapacity tank fuel capacity
      */
-    public Motorcycle(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _enginePower) {
-        name = _name;
-        price = _price;
-        transmissionType = _type;
-        brand = _brand;
-        cylinderVolume = _enginePower;
-        id = UUID.randomUUID().toString();
+    public Motorcycle(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _enginePower, Engine engineType, float gasolineTankCapacity) {
+        this.name = _name;
+        this.price = _price;
+        this.transmissionType = _type;
+        this.brand = _brand;
+        this.cylinderVolume = _enginePower;
+        this.engineType = engineType;
+        this.gasolineTankCapacity = gasolineTankCapacity;
+        this.id = UUID.randomUUID().toString();
     }
 
     /**
@@ -63,6 +72,18 @@ public class Motorcycle {
      */
     public MotorcycleBrand getBrand() {
         return brand;
+    }
+
+    public float getGasolineTankCapacity() {
+        return gasolineTankCapacity;
+    }
+
+    public void setGasolineTankCapacity(float gasolineTankCapacity) {
+        this.gasolineTankCapacity = gasolineTankCapacity;
+    }
+
+    public Engine getEngineType() {
+        return engineType;
     }
 
 //    /**

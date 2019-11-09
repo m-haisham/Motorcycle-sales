@@ -129,7 +129,7 @@ public class Customer {
      * @param _paymentType type of payment
      */
     public void addPayment(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _power, PurchaseType _purchaseType, PaymentType _paymentType) {
-        Motorcycle cycle = new Motorcycle(_name, _price, _type, _brand, _power);
+        Motorcycle cycle = new Motorcycle(_name, _price, _type, _brand, _power, engineOilCapacity, gasolineTankCapacity);
         this.addEvent(new PaymentEvent(cycle, _purchaseType, _paymentType));
     }
 
