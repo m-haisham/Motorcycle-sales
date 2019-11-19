@@ -1,9 +1,9 @@
-package com.cerberus.models.motorcycle;
+package com.cerberus.models.motorcycle.engine;
 
 /**
  * Cylinder volume of motorcycle in cc
  */
-public enum MotorcycleCylinderVolume {
+public enum CylinderVolume {
     v110,
     v125,
     v135,

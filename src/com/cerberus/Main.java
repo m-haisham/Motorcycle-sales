@@ -1,29 +1,31 @@
 package com.cerberus;
 
-import com.cerberus.input.confirm.ConfirmMenu;
 import com.cerberus.input.query.Query;
 import com.cerberus.input.selection.*;
-import com.cerberus.models.motorcycle.Motorcycle;
-import com.cerberus.models.motorcycle.MotorcycleBrand;
-import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
-import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
-import com.cerberus.register.Customer;
-import com.cerberus.register.exceptions.MaxLeaseExceedException;
-import com.cerberus.register.PaymentType;
-import com.cerberus.register.event.PaymentEvent;
+import com.cerberus.models.customer.Customer;
+import com.cerberus.register.CustomerRegister;
 
-import com.cerberus.register.PurchaseType;
-
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Main {
 
-    public static ArrayList<Customer> customerRegistry = new ArrayList<>();
+    /**
+     * customers data file location
+     */
+    public static String customersListLocation = "data/customers.json";
 
-    public static void main(String[] args) {
+    /**
+     * cycles data file location
+     */
+    public static String motorcyclesListLocation = "data/motorcycles.json";
+
+    public static CustomerRegister customerRegister;
+
+    public static void main(String[] args) throws IOException {
 
 
         /*Customer customer = new Customer("Jon", "Doe", "A258771", LocalDate.parse("2001-08-16"));
@@ -43,30 +45,21 @@ public class Main {
             e.printStackTrace();
         }*/
 
-        addCustomer();
-        Customer customer = customerRegistry.get(0);
+        customerRegister = CustomerRegister.fromFile(new File(customersListLocation));
+
+        Customer customer = customerRegister.getCustomers().get(0);
 
         SelectionMenu.create("Customer Details", new SelectionItem[] {
-                SelectionOption.create("Full name", () -> {
 
-                    ConfirmMenu.create("Are you sure?",
-                            (/* when chosen yes */) -> {
-                                System.out.println(customer.getFullName());
-                                return null;
-                            },
-                            (/* when chosen no */) -> {
-                                System.out.println("Too bad");
-                                return null;
-                            }
-                    ).prompt();
-                    return null;
-                }, new String[] {"name"}),
-                SelectionOption.create("Age", () -> {
-                    System.out.println(customer.getAge());
+                SelectionOption.create("Add new", () -> {
+                    addCustomer();
                     return null;
                 }),
-                SelectionOption.create("ID", () -> {
-                    System.out.println(customer.getId());
+                SelectionSeperator.empty(),
+                SelectionOption.create("All", () -> {
+                    customerRegister.getCustomers().forEach(it -> {
+                        System.out.println(it.getFullName());
+                    });
                     return null;
                 }),
                 SelectionSeperator.empty(),
@@ -78,15 +71,8 @@ public class Main {
 
     public static void addCustomer() {
 
-        Query query = Query.create();
+        customerRegister.addCustomer(Customer.create());
 
-        String firstName = query.ask("First name: ", Scanner::nextLine);
-        String lastName = query.ask("Last name: ", Scanner::nextLine);
-        String id = query.ask("National ID: ", Scanner::nextLine);
-        String birthday = query.ask("Birth date (yyyy-MM-dd): ", Scanner::nextLine);
-
-        customerRegistry.add(new Customer(firstName, lastName, id, LocalDate.parse(birthday)));
-
-        System.out.println(customerRegistry);
+        System.out.println(customerRegister);
     }
 }

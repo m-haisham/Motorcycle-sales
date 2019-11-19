@@ -1,4 +1,4 @@
-package com.cerberus.register.exceptions;
+package com.cerberus.models.customer.exceptions;
 
 public class MaxLeaseExceedException extends Exception {
     public MaxLeaseExceedException(String errorMessage) {

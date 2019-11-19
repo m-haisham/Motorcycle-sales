@@ -1,6 +1,7 @@
 package com.cerberus.models.motorcycle;
 
 import com.cerberus.models.motorcycle.engine.Engine;
+import com.cerberus.models.motorcycle.engine.CylinderVolume;
 
 import java.util.UUID;
 
@@ -15,10 +16,9 @@ public class Motorcycle {
     private final double price;
     private final MotorcycleTransmissionType transmissionType;
     private final MotorcycleBrand brand;
-    private final MotorcycleCylinderVolume cylinderVolume;
 
-    private final Engine engineType;
     private float gasolineTankCapacity;
+    private final Engine engineType;
 
     /**
      * default constructor
@@ -28,12 +28,11 @@ public class Motorcycle {
      * @param engineType type of engine equipped on motorcycle
      * @param gasolineTankCapacity tank fuel capacity
      */
-    public Motorcycle(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _enginePower, Engine engineType, float gasolineTankCapacity) {
+    public Motorcycle(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, Engine engineType, float gasolineTankCapacity) {
         this.name = _name;
         this.price = _price;
         this.transmissionType = _type;
         this.brand = _brand;
-        this.cylinderVolume = _enginePower;
         this.engineType = engineType;
         this.gasolineTankCapacity = gasolineTankCapacity;
         this.id = UUID.randomUUID().toString();
@@ -58,13 +57,6 @@ public class Motorcycle {
      */
     public MotorcycleTransmissionType getTransmissionType() {
         return transmissionType;
-    }
-
-    /**
-     * @return cylinder volume of motorcycle
-     */
-    public MotorcycleCylinderVolume getCylinderVolume() {
-        return cylinderVolume;
     }
 
     /**

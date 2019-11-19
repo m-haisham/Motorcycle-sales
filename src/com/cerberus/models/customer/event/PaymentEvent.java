@@ -1,8 +1,8 @@
-package com.cerberus.register.event;
+package com.cerberus.models.customer.event;
 
 import com.cerberus.models.motorcycle.Motorcycle;
-import com.cerberus.register.PaymentType;
-import com.cerberus.register.PurchaseType;
+import com.cerberus.models.customer.PaymentType;
+import com.cerberus.models.customer.PurchaseType;
 
 import java.time.LocalDateTime;
 

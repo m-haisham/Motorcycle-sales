@@ -1,4 +1,4 @@
-package com.cerberus.register;
+package com.cerberus.models.customer;
 
 public enum PurchaseType {
     purchase,

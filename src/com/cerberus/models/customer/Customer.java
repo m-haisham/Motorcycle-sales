@@ -1,18 +1,19 @@
-package com.cerberus.register;
+package com.cerberus.models.customer;
 
+import com.cerberus.input.query.Query;
+import com.cerberus.input.range.RangeMenu;
+import com.cerberus.models.date.DateHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
-import com.cerberus.models.motorcycle.MotorcycleBrand;
-import com.cerberus.models.motorcycle.MotorcycleCylinderVolume;
-import com.cerberus.models.motorcycle.MotorcycleTransmissionType;
-import com.cerberus.register.event.Event;
-import com.cerberus.register.event.PaymentEvent;
-import com.cerberus.register.exceptions.MaxLeaseExceedException;
+import com.cerberus.models.customer.event.Event;
+import com.cerberus.models.customer.event.PaymentEvent;
+import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
 import com.cerberus.sale.exceptions.DateSegmentError;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.UUID;
 
 /**
@@ -21,7 +22,6 @@ import java.util.UUID;
  */
 public class Customer {
 
-    private final String id;
     private final String firstName;
     private final String lastName;
     private final String nationalId;
@@ -45,13 +45,30 @@ public class Customer {
      * @param _lastName Last name of customer
      */
     public Customer(String _firstName, String _lastName, String _nationalId, LocalDate _birthDate) {
-        id = UUID.randomUUID().toString();
         firstName = _firstName;
         lastName = _lastName;
         nationalId = _nationalId;
         birthDate = _birthDate;
         leases = new ArrayList<>();
         maxLeases = 1;
+    }
+
+    public static Customer create() {
+
+        Query query = Query.create();
+
+        System.out.println("Customer Form");
+        String firstName = query.ask("First Name: ", Scanner::nextLine);
+        String lastName = query.ask("Last Name: ", Scanner::nextLine);
+        String id = query.ask("National ID: ", Scanner::nextLine);
+
+        int leastYear = LocalDate.now().minusYears(120).getYear();
+        int year = RangeMenu.create("Year", leastYear, LocalDate.now().getYear() - 10).promptNoAction();
+        int month = RangeMenu.create("Month",1,  DateHelper.getMonths().length).promptNoAction();
+        int day = RangeMenu.create("Day", 1, DateHelper.getDays(month).length).promptNoAction();
+
+        return new Customer(firstName, lastName, id, LocalDate.of(year, month, day));
+
     }
 
     /**
@@ -103,7 +120,7 @@ public class Customer {
      * getter for {@link #history}
      * @return {@link #history}
      */
-    public ArrayList<Event> gethistory() {
+    public ArrayList<Event> getHistory() {
         return history;
     }
 
@@ -123,21 +140,13 @@ public class Customer {
      * creates a motorcycle using {@link com.cerberus.models.motorcycle.Motorcycle} default constructor
      * creates Payment using {@link PaymentEvent} and motorcycle
      * then Payment to {@link #history}
-     * @param _name name of motorcycle
-     * @param _price price of motorcycle
-     * @param _type type of motorcycle
-     * @param _paymentType type of payment
+     * @param motorcycle cycle paid for
+     * @param purchaseType type of purchase
+     * @param paymentType how it was paid for
      */
-    public void addPayment(String _name, double _price, MotorcycleTransmissionType _type, MotorcycleBrand _brand, MotorcycleCylinderVolume _power, PurchaseType _purchaseType, PaymentType _paymentType) {
-        Motorcycle cycle = new Motorcycle(_name, _price, _type, _brand, _power, engineOilCapacity, gasolineTankCapacity);
-        this.addEvent(new PaymentEvent(cycle, _purchaseType, _paymentType));
-    }
-
-    /**
-     * @return UUID of customer
-     */
-    public String getId() {
-        return id;
+    public void addPayment(Motorcycle motorcycle, PurchaseType purchaseType, PaymentType paymentType) {
+        PaymentEvent event = new PaymentEvent(motorcycle, purchaseType, paymentType);
+        this.addEvent(event);
     }
 
     /**
@@ -159,22 +168,16 @@ public class Customer {
      * @param leases leases to be set
      */
     public void setLease(ArrayList<Lease> leases) throws MaxLeaseExceedException {
-        if (leases.size() <= maxLeases) {
-            this.leases = leases;
-        } else {
-            throw new MaxLeaseExceedException("size exceeds max leases amount");
-        }
+        if (leases.size() <= maxLeases) this.leases = leases;
+        else throw new MaxLeaseExceedException("size exceeds max leases amount");
     }
 
     /**
-     * add lease to leases list after
+     * add lease to leases list
      */
     public void addLease(Lease lease) throws MaxLeaseExceedException {
-        if (leases.size() < maxLeases) {
-            this.leases.add(lease);
-        } else {
-            throw new MaxLeaseExceedException("Leases are maxed out");
-        }
+        if (leases.size() < maxLeases) this.leases.add(lease);
+        else throw new MaxLeaseExceedException("Leases are maxed out");
     }
 
     /**
@@ -187,7 +190,7 @@ public class Customer {
 
         // check if it exists
         if (index == -1)
-            throw new IndexOutOfBoundsException("lease no such lease exists");
+            throw new IndexOutOfBoundsException("no such lease exists");
 
         // remove
         leases.remove(index);
@@ -216,7 +219,14 @@ public class Customer {
             // pay
             installment.setPaid(true);
 
+            // create payment event
             PaymentEvent event = new PaymentEvent(lease.getMotorcycle(), PurchaseType.lease, paymentType);
+
+            // add transaction to installment
+            installment.setPaymentEvent(event);
+
+            // add transaction event to the history log of customer
+            this.getHistory().add(event);
 
             // update segments left
             segments--;
