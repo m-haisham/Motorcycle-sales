@@ -6,21 +6,18 @@ import com.cerberus.models.customer.PurchaseType;
 
 import java.time.LocalDateTime;
 
-public class PaymentEvent implements Event {
+public class PurchaseEvent implements Event {
 
     private final LocalDateTime dateTime;
     private final Motorcycle motorcycle;
-    private final PurchaseType purchaseType;
     private final PaymentType paymentType;
 
     /**
      * default constructor
      * @param _motorcycle motorcycle payment is applied on
-     * @param _type type of payment
      */
-    public PaymentEvent(Motorcycle _motorcycle, PurchaseType _type, PaymentType _paymentType) {
+    public PurchaseEvent(Motorcycle _motorcycle, PaymentType _paymentType) {
         motorcycle = _motorcycle;
-        purchaseType = _type;
         paymentType = _paymentType;
 
         dateTime = LocalDateTime.now();
@@ -39,13 +36,6 @@ public class PaymentEvent implements Event {
      */
     public Motorcycle getMotorcycle() {
         return motorcycle;
-    }
-
-    /**
-     * @return type of purchase
-     */
-    public PurchaseType getPurchaseType() {
-        return purchaseType;
     }
 
     /**

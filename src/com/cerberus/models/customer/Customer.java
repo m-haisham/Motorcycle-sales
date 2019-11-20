@@ -2,10 +2,12 @@ package com.cerberus.models.customer;
 
 import com.cerberus.input.query.Query;
 import com.cerberus.input.range.RangeMenu;
+import com.cerberus.models.customer.event.InstallmentEvent;
+import com.cerberus.models.customer.event.LeaseEvent;
 import com.cerberus.models.helpers.DateHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.cerberus.models.customer.event.Event;
-import com.cerberus.models.customer.event.PaymentEvent;
+import com.cerberus.models.customer.event.PurchaseEvent;
 import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
@@ -137,14 +139,13 @@ public class Customer {
 
     /**
      * creates a motorcycle using {@link com.cerberus.models.motorcycle.Motorcycle} default constructor
-     * creates Payment using {@link PaymentEvent} and motorcycle
+     * creates Payment using {@link PurchaseEvent} and motorcycle
      * then Payment to {@link #history}
      * @param motorcycle cycle paid for
-     * @param purchaseType type of purchase
      * @param paymentType how it was paid for
      */
-    public void addPayment(Motorcycle motorcycle, PurchaseType purchaseType, PaymentType paymentType) {
-        PaymentEvent event = new PaymentEvent(motorcycle, purchaseType, paymentType);
+    public void addPurchase(Motorcycle motorcycle, PaymentType paymentType) {
+        PurchaseEvent event = new PurchaseEvent(motorcycle, paymentType);
         this.addEvent(event);
     }
 
@@ -175,7 +176,10 @@ public class Customer {
      * add lease to leases list
      */
     public void addLease(Lease lease) throws MaxLeaseExceedException {
-        if (leases.size() < maxLeases) this.leases.add(lease);
+        if (leases.size() < maxLeases) {
+            getHistory().add(new LeaseEvent(lease));
+            this.leases.add(lease);
+        }
         else throw new MaxLeaseExceedException("Leases are maxed out");
     }
 
@@ -218,11 +222,12 @@ public class Customer {
             // pay
             installment.setPaid(true);
 
-            // create payment event
-            PaymentEvent event = new PaymentEvent(lease.getMotorcycle(), PurchaseType.lease, paymentType);
-
-            // add transaction to installment
-            installment.setPaymentEvent(event);
+            // create installment event
+            InstallmentEvent event = new InstallmentEvent(
+                    lease.getMotorcycle(),
+                    paymentType,
+                    installment
+            );
 
             // add transaction event to the history log of customer
             this.getHistory().add(event);

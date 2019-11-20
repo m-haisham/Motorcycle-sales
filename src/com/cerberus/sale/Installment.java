@@ -1,6 +1,6 @@
 package com.cerberus.sale;
 
-import com.cerberus.models.customer.event.PaymentEvent;
+import com.cerberus.models.customer.event.PurchaseEvent;
 import com.cerberus.sale.exceptions.DateSegmentError;
 
 import java.time.LocalDate;
@@ -11,8 +11,6 @@ public class Installment {
     private double amount;
     private boolean penaltyAdded = false;
     private LocalDate dueDate;
-
-    private PaymentEvent paymentEvent;
 
     /**
      * default constructor
@@ -77,13 +75,5 @@ public class Installment {
      */
     public boolean isPenaltyAdded() {
         return penaltyAdded;
-    }
-
-    public PaymentEvent getPaymentEvent() {
-        return paymentEvent;
-    }
-
-    public void setPaymentEvent(PaymentEvent paymentEvent) {
-        this.paymentEvent = paymentEvent;
     }
 }

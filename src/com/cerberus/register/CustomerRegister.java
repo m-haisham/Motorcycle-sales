@@ -1,13 +1,17 @@
 package com.cerberus.register;
 
 import com.cerberus.models.customer.Customer;
-import com.cerberus.models.customer.event.PaymentEvent;
+import com.cerberus.models.customer.event.Event;
+import com.cerberus.models.customer.event.PurchaseEvent;
 import com.cerberus.models.helpers.GsonHelper;
 import com.cerberus.models.helpers.StringHelper;
+import com.cerberus.models.motorcycle.Motorcycle;
 import com.google.gson.Gson;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -106,9 +110,9 @@ public class CustomerRegister {
             );
 
             customer.getHistory().forEach(event -> {
-                if (event.getClass() == PaymentEvent.class) {
-                    boolean yearMatch = ((PaymentEvent) event).getDateTime().getYear() == date.getYear();
-                    boolean monthMatch = ((PaymentEvent) event).getDateTime().getMonth() == date.getMonth();
+                if (event.getClass() == PurchaseEvent.class) {
+                    boolean yearMatch = ((PurchaseEvent) event).getDateTime().getYear() == date.getYear();
+                    boolean monthMatch = ((PurchaseEvent) event).getDateTime().getMonth() == date.getMonth();
 
                     // if in this month
                     if (yearMatch && monthMatch) {
@@ -156,12 +160,44 @@ public class CustomerRegister {
         for (int i = 0; i < report.getCustomers().length; i++) {
             Customer customer = report.getCustomers()[i];
 
+            // name of customer and transactions count
             String name = StringHelper.padded(customer.getFullName().toUpperCase(), indent);
-            String amount = String.valueOf(customer.getHistory().size());
+            String amount = "[ " + String.valueOf(customer.getHistory().size()) + " ]";
 
             System.out.print(name);
             System.out.print(StringHelper.create(" ", width - name.length() - amount.length() - indent.length()));
             System.out.println(amount);
+
+            for (Event event : customer.getHistory()) {
+
+                String lineHeading;
+                String lineTrailing;
+                String lineSpacer;
+
+                if (event.getClass() == PurchaseEvent.class) {
+                    event = (PurchaseEvent) event;
+
+                    Motorcycle cycle = ((PurchaseEvent) event).getMotorcycle();
+                    lineHeading = indent + "\u2022 " + cycle.getName();
+                    lineTrailing = "RF " + StringHelper.formatMoney(cycle.getPrice()) + indent;
+                    lineSpacer = StringHelper.getSpacer(width, lineHeading, lineTrailing);
+
+                    System.out.println(lineHeading + lineSpacer + lineTrailing);
+
+                    lineHeading = padding + "PURCHASE | " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(((PurchaseEvent) event).getDateTime());
+                    lineTrailing = "";
+                    lineSpacer = StringHelper.getSpacer(width, lineHeading, lineTrailing);
+
+                    System.out.println(lineHeading + lineSpacer + lineTrailing);
+
+                }
+                // TODO add LeaseEvent conditional
+                // TODO add InstallmentEvent conditional
+
+            }
+
+            // make space
+            System.out.println();
         }
 
         System.out.println(seperator);

@@ -68,9 +68,8 @@ public class Main {
                 SelectionOption.create("Add new Transaction", () -> {
                     Customer customer = customerRegister.getCustomers().get(new Random().nextInt(customerRegister.getCustomers().size()));
                     System.out.println(motorcyclesRegister.getMotorcycles());
-                    customer.addPayment(
+                    customer.addPurchase(
                             motorcyclesRegister.getMotorcycles().get(0),
-                            PurchaseType.purchase,
                             PaymentType.card
                     );
                     try {
@@ -83,8 +82,8 @@ public class Main {
                 SelectionSeperator.empty(),
                 SelectionOption.create("Report", () -> {
                     Report report = customerRegister.generateReport(LocalDate.now());
-                    CustomerRegister.printReport(new Report(customerRegister.getCustomers().toArray(new Customer[0])));
-//                    CustomerRegister.printReport(new Report(new Customer[0]));
+//                    CustomerRegister.printReport(new Report(customerRegister.getCustomers().toArray(new Customer[0])));
+                    CustomerRegister.printReport(report);
                     return null;
                 }),
                 SelectionOption.create("All Names", () -> {
