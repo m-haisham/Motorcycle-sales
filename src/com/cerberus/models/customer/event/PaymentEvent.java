@@ -10,7 +10,7 @@ public class PaymentEvent implements Event {
 
     private final LocalDateTime dateTime;
     private final Motorcycle motorcycle;
-    private final PurchaseType purchaseType; //change to purchase type
+    private final PurchaseType purchaseType;
     private final PaymentType paymentType;
 
     /**

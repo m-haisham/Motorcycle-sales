@@ -1,29 +1,36 @@
 package com.cerberus;
 
-import com.cerberus.input.query.Query;
 import com.cerberus.input.selection.*;
 import com.cerberus.models.customer.Customer;
+import com.cerberus.models.customer.PaymentType;
+import com.cerberus.models.customer.PurchaseType;
 import com.cerberus.register.CustomerRegister;
+import com.cerberus.register.MotorcyclesRegister;
+import com.cerberus.register.Report;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.time.LocalDate;
-import java.util.Scanner;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class Main {
 
     /**
-     * customers data file location
+     * customers data file
      */
-    public static String customersListLocation = "data/customers.json";
+    public static File customersFile = new File("data/customers.json");
 
     /**
-     * cycles data file location
+     * cycles data file
      */
-    public static String motorcyclesListLocation = "data/motorcycles.json";
+    public static File motorcyclesFile = new File("data/motorcycles.json");
 
     public static CustomerRegister customerRegister;
+
+    public static MotorcyclesRegister motorcyclesRegister;
 
     public static void main(String[] args) throws IOException {
 
@@ -45,33 +52,68 @@ public class Main {
             e.printStackTrace();
         }*/
 
-        customerRegister = CustomerRegister.fromFile(new File(customersListLocation));
 
-        Customer customer = customerRegister.getCustomers().get(0);
+        customerRegister = CustomerRegister.fromFile(customersFile);
+        motorcyclesRegister = MotorcyclesRegister.fromFile(motorcyclesFile);
 
-        SelectionMenu.create("Customer Details", new SelectionItem[] {
 
-                SelectionOption.create("Add new", () -> {
+        AtomicBoolean exit = new AtomicBoolean(false);
+
+        SelectionMenu mainmenu = SelectionMenu.create("Customer Details", new SelectionItem[] {
+
+                SelectionOption.create("Add new Customer", () -> {
                     addCustomer();
                     return null;
                 }),
+                SelectionOption.create("Add new Transaction", () -> {
+                    Customer customer = customerRegister.getCustomers().get(new Random().nextInt(customerRegister.getCustomers().size()));
+                    System.out.println(motorcyclesRegister.getMotorcycles());
+                    customer.addPayment(
+                            motorcyclesRegister.getMotorcycles().get(0),
+                            PurchaseType.purchase,
+                            PaymentType.card
+                    );
+                    try {
+                        customerRegister.updateStorage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }),
                 SelectionSeperator.empty(),
-                SelectionOption.create("All", () -> {
+                SelectionOption.create("Report", () -> {
+                    Report report = customerRegister.generateReport(LocalDate.now());
+                    CustomerRegister.printReport(new Report(customerRegister.getCustomers().toArray(new Customer[0])));
+//                    CustomerRegister.printReport(new Report(new Customer[0]));
+                    return null;
+                }),
+                SelectionOption.create("All Names", () -> {
                     customerRegister.getCustomers().forEach(it -> {
                         System.out.println(it.getFullName());
                     });
                     return null;
                 }),
                 SelectionSeperator.empty(),
-                SelectionOption.create("Exit", () -> null)
+                SelectionOption.create("Exit", () -> {
+                    exit.set(true);
+                    return null;
+                })
 
-        }).prompt();
+        });
+
+        while (!exit.get()) {
+            mainmenu.prompt();
+        }
 
     }
 
     public static void addCustomer() {
 
-        customerRegister.addCustomer(Customer.create());
+        try {
+            customerRegister.addCustomer(Customer.create());
+        } catch (InvalidObjectException e) {
+            System.out.println(e);
+        }
 
         System.out.println(customerRegister);
     }

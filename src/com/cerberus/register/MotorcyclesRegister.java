@@ -1,5 +1,6 @@
 package com.cerberus.register;
 
+import com.cerberus.models.helpers.GsonHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.google.gson.Gson;
 
@@ -22,7 +23,7 @@ public class MotorcyclesRegister {
         return storage;
     }
 
-    private Gson gson = new Gson();
+    private Gson gson = GsonHelper.create();
 
     private MotorcyclesRegister(File storage) {
         this.storage = storage;
@@ -38,11 +39,16 @@ public class MotorcyclesRegister {
     public static MotorcyclesRegister fromFile(File file) throws FileNotFoundException {
         MotorcyclesRegister register = new MotorcyclesRegister(file);
 
-        Gson gson = new Gson();
+        Gson gson = GsonHelper.create();
 
         // load customers list from json data file
         Motorcycle[] cArray = gson.fromJson(new FileReader(file), Motorcycle[].class);
-        register.setMotorcycles(new ArrayList<>(Arrays.asList(cArray)));
+
+        try {
+            register.setMotorcycles(new ArrayList<>(Arrays.asList(cArray)));
+        } catch (NullPointerException ignored) {
+            register.setMotorcycles(new ArrayList<>());
+        }
 
         return register;
     }
@@ -84,7 +90,7 @@ public class MotorcyclesRegister {
      * overwrite current state to storage
      * @throws IOException
      */
-    private void updateStorage() throws IOException {
+    public void updateStorage() throws IOException {
 
         String json = gson.toJson(this.getMotorcycles().toArray());
 

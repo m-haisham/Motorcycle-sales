@@ -1,10 +1,12 @@
-package com.cerberus.models.date;
+package com.cerberus.models.helpers;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class DateHelper {
+
+    private DateHelper() {}
 
     public static int[] getMonths() {
         int[] months = new int[12];
@@ -44,5 +46,4 @@ public class DateHelper {
         return days;
     }
 
-    private DateHelper() {}
 }

@@ -2,7 +2,7 @@ package com.cerberus.models.customer;
 
 import com.cerberus.input.query.Query;
 import com.cerberus.input.range.RangeMenu;
-import com.cerberus.models.date.DateHelper;
+import com.cerberus.models.helpers.DateHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.cerberus.models.customer.event.Event;
 import com.cerberus.models.customer.event.PaymentEvent;
@@ -14,7 +14,6 @@ import com.cerberus.sale.exceptions.DateSegmentError;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.UUID;
 
 /**
  * @author mHaisham and yaish

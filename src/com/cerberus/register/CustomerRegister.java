@@ -1,9 +1,13 @@
 package com.cerberus.register;
 
 import com.cerberus.models.customer.Customer;
+import com.cerberus.models.customer.event.PaymentEvent;
+import com.cerberus.models.helpers.GsonHelper;
+import com.cerberus.models.helpers.StringHelper;
 import com.google.gson.Gson;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,7 +26,7 @@ public class CustomerRegister {
         return storage;
     }
 
-    private Gson gson = new Gson();
+    private Gson gson = GsonHelper.create();
 
     private CustomerRegister(File storage) {
         this.storage = storage;
@@ -32,12 +36,15 @@ public class CustomerRegister {
     public static CustomerRegister fromFile(File file) throws FileNotFoundException {
         CustomerRegister register = new CustomerRegister(file);
 
-        Gson gson = new Gson();
+        Gson gson = GsonHelper.create();
 
         // load customers list from json data file
         Customer[] cArray = gson.fromJson(new FileReader(file), Customer[].class);
-        register.setCustomers(new ArrayList<>(Arrays.asList(cArray)));
-
+        try {
+            register.setCustomers(new ArrayList<>(Arrays.asList(cArray)));
+        } catch (NullPointerException ignored) {
+            register.setCustomers(new ArrayList<>());
+        }
         return register;
     }
 
@@ -46,7 +53,7 @@ public class CustomerRegister {
      * removes this customer if storage cant be updated
      * @param customer customer to add
      */
-    public void addCustomer(Customer customer) {
+    public void addCustomer(Customer customer) throws InvalidObjectException {
         addCustomer(customer, true);
     }
 
@@ -56,7 +63,14 @@ public class CustomerRegister {
      * @param customer customer to add
      * @param update whether to check if storage can be updated if so do so
      */
-    public void addCustomer(Customer customer, boolean update) {
+    public void addCustomer(Customer customer, boolean update) throws InvalidObjectException {
+
+        // check if it exists
+        for (Customer it : this.getCustomers()) {
+            if (it.getNationalId().equals(customer.getNationalId()))
+                throw new InvalidObjectException("Customer wtih ID already exists.");
+        }
+
         // add
         this.getCustomers().add(customer);
 
@@ -74,10 +88,91 @@ public class CustomerRegister {
     }
 
     /**
+     * generated a report of all sales on month date
+     * @param date month of reports to recover
+     */
+    public Report generateReport(LocalDate date) {
+
+        ArrayList<Customer> customers = new ArrayList<>();
+
+        for (Customer customer : getCustomers()) {
+
+            // create a copy of this customer with clean history
+            Customer constrainedCustomer = new Customer(
+                    customer.getFirstName(),
+                    customer.getLastName(),
+                    customer.getNationalId(),
+                    customer.getBirthDate()
+            );
+
+            customer.getHistory().forEach(event -> {
+                if (event.getClass() == PaymentEvent.class) {
+                    boolean yearMatch = ((PaymentEvent) event).getDateTime().getYear() == date.getYear();
+                    boolean monthMatch = ((PaymentEvent) event).getDateTime().getMonth() == date.getMonth();
+
+                    // if in this month
+                    if (yearMatch && monthMatch) {
+                        constrainedCustomer.getHistory().add(event);
+                    }
+                }
+            });
+
+            // if customer has any history this month
+            if (constrainedCustomer.getHistory().size() != 0)
+                // add
+                customers.add(constrainedCustomer);
+
+        }
+
+        return new Report(customers.toArray(new Customer[0]));
+
+    }
+
+    public static void printReport(Report report) {
+
+        int width = 100;
+
+        String seperator = StringHelper.create("-", width);
+        String indent = StringHelper.create(" ", 2);
+        String padding = StringHelper.create(" ", 4);
+
+        // header
+        System.out.println(seperator);
+
+        String heading = indent+"REPORT";
+        System.out.print(heading);
+
+        String date = report.getDate().getMonth().getValue() + "/" + report.getDate().getYear();
+        System.out.print(StringHelper.create(" ", width - heading.length() - date.length() - indent.length()));
+        System.out.println(date);
+
+        System.out.println(seperator);
+
+        if (report.getCustomers().length <= 0) {
+            System.out.println(indent + "NO TRANSACTIONS THIS MONTH! :(");
+        }
+
+        double totol;
+        for (int i = 0; i < report.getCustomers().length; i++) {
+            Customer customer = report.getCustomers()[i];
+
+            String name = StringHelper.padded(customer.getFullName().toUpperCase(), indent);
+            String amount = String.valueOf(customer.getHistory().size());
+
+            System.out.print(name);
+            System.out.print(StringHelper.create(" ", width - name.length() - amount.length() - indent.length()));
+            System.out.println(amount);
+        }
+
+        System.out.println(seperator);
+
+    }
+
+    /**
      * overwrite current state to storage
      * @throws IOException
      */
-    private void updateStorage() throws IOException {
+    public void updateStorage() throws IOException {
 
         String json = gson.toJson(this.getCustomers().toArray());
 
