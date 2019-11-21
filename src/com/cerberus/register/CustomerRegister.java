@@ -2,10 +2,13 @@ package com.cerberus.register;
 
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.customer.event.Event;
+import com.cerberus.models.customer.event.InstallmentEvent;
+import com.cerberus.models.customer.event.LeaseEvent;
 import com.cerberus.models.customer.event.PurchaseEvent;
 import com.cerberus.models.helpers.GsonHelper;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
+import com.cerberus.sale.Installment;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -110,14 +113,12 @@ public class CustomerRegister {
             );
 
             customer.getHistory().forEach(event -> {
-                if (event.getClass() == PurchaseEvent.class) {
-                    boolean yearMatch = ((PurchaseEvent) event).getDateTime().getYear() == date.getYear();
-                    boolean monthMatch = ((PurchaseEvent) event).getDateTime().getMonth() == date.getMonth();
+                boolean yearMatch = event.getDateTime().getYear() == date.getYear();
+                boolean monthMatch = event.getDateTime().getMonth() == date.getMonth();
 
-                    // if in this month
-                    if (yearMatch && monthMatch) {
-                        constrainedCustomer.getHistory().add(event);
-                    }
+                // if in this month
+                if (yearMatch && monthMatch) {
+                    constrainedCustomer.getHistory().add(event);
                 }
             });
 
@@ -128,79 +129,7 @@ public class CustomerRegister {
 
         }
 
-        return new Report(customers.toArray(new Customer[0]));
-
-    }
-
-    public static void printReport(Report report) {
-
-        int width = 100;
-
-        String seperator = StringHelper.create("-", width);
-        String indent = StringHelper.create(" ", 2);
-        String padding = StringHelper.create(" ", 4);
-
-        // header
-        System.out.println(seperator);
-
-        String heading = indent+"REPORT";
-        System.out.print(heading);
-
-        String date = report.getDate().getMonth().getValue() + "/" + report.getDate().getYear();
-        System.out.print(StringHelper.create(" ", width - heading.length() - date.length() - indent.length()));
-        System.out.println(date);
-
-        System.out.println(seperator);
-
-        if (report.getCustomers().length <= 0) {
-            System.out.println(indent + "NO TRANSACTIONS THIS MONTH! :(");
-        }
-
-        double totol;
-        for (int i = 0; i < report.getCustomers().length; i++) {
-            Customer customer = report.getCustomers()[i];
-
-            // name of customer and transactions count
-            String name = StringHelper.padded(customer.getFullName().toUpperCase(), indent);
-            String amount = "[ " + String.valueOf(customer.getHistory().size()) + " ]";
-
-            System.out.print(name);
-            System.out.print(StringHelper.create(" ", width - name.length() - amount.length() - indent.length()));
-            System.out.println(amount);
-
-            for (Event event : customer.getHistory()) {
-
-                String lineHeading;
-                String lineTrailing;
-                String lineSpacer;
-
-                if (event.getClass() == PurchaseEvent.class) {
-                    event = (PurchaseEvent) event;
-
-                    Motorcycle cycle = ((PurchaseEvent) event).getMotorcycle();
-                    lineHeading = indent + "\u2022 " + cycle.getName();
-                    lineTrailing = "RF " + StringHelper.formatMoney(cycle.getPrice()) + indent;
-                    lineSpacer = StringHelper.getSpacer(width, lineHeading, lineTrailing);
-
-                    System.out.println(lineHeading + lineSpacer + lineTrailing);
-
-                    lineHeading = padding + "PURCHASE | " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(((PurchaseEvent) event).getDateTime());
-                    lineTrailing = "";
-                    lineSpacer = StringHelper.getSpacer(width, lineHeading, lineTrailing);
-
-                    System.out.println(lineHeading + lineSpacer + lineTrailing);
-
-                }
-                // TODO add LeaseEvent conditional
-                // TODO add InstallmentEvent conditional
-
-            }
-
-            // make space
-            System.out.println();
-        }
-
-        System.out.println(seperator);
+        return new Report(customers.toArray(new Customer[0]), date);
 
     }
 

@@ -12,8 +12,14 @@ public class StringHelper {
         return padding + string;
     }
 
+    public static int width = 100;
+
     public static String getSpacer(int width, String leading, String trailing) {
         return StringHelper.create(" ", width - leading.length() - trailing.length());
+    }
+
+    public static String bullet() {
+        return "\u2022";
     }
 
     public static String formatMoney(double amount) {

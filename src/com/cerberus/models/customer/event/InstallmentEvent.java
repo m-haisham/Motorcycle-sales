@@ -7,23 +7,18 @@ import com.cerberus.sale.Lease;
 
 import java.time.LocalDateTime;
 
-public class InstallmentEvent implements Event {
+public class InstallmentEvent extends Event {
 
-    private final LocalDateTime dateTime;
     private final Motorcycle motorcycle;
     private final PaymentType paymentType;
 
     private final Installment installment;
 
     public InstallmentEvent(Motorcycle motorcycle, PaymentType paymentType, Installment installment) {
-        this.dateTime = LocalDateTime.now();
+        super();
         this.motorcycle = motorcycle;
         this.paymentType = paymentType;
         this.installment = installment;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
     }
 
     public Motorcycle getMotorcycle() {

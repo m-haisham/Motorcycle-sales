@@ -4,9 +4,11 @@ import com.cerberus.input.selection.*;
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.customer.PaymentType;
 import com.cerberus.models.customer.PurchaseType;
+import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
 import com.cerberus.register.Report;
+import com.cerberus.sale.Lease;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,13 +61,13 @@ public class Main {
 
         AtomicBoolean exit = new AtomicBoolean(false);
 
-        SelectionMenu mainmenu = SelectionMenu.create("Customer Details", new SelectionItem[] {
+        SelectionMenu mainmenu = SelectionMenu.create("Main Menu", new SelectionItem[] {
 
                 SelectionOption.create("Add new Customer", () -> {
                     addCustomer();
                     return null;
                 }),
-                SelectionOption.create("Add new Transaction", () -> {
+                SelectionOption.create("Add new Purchase", () -> {
                     Customer customer = customerRegister.getCustomers().get(new Random().nextInt(customerRegister.getCustomers().size()));
                     System.out.println(motorcyclesRegister.getMotorcycles());
                     customer.addPurchase(
@@ -79,11 +81,48 @@ public class Main {
                     }
                     return null;
                 }),
+                SelectionOption.create("Add new Lease", () -> {
+                    Customer customer = customerRegister.getCustomers().get(new Random().nextInt(customerRegister.getCustomers().size()));
+
+                    Lease lease = new Lease(motorcyclesRegister.getMotorcycles().get(1), 24);
+
+                    try {
+                        customer.addLease(lease);
+                    } catch (MaxLeaseExceedException e) {
+                        System.out.println(e.getMessage());
+                        return null;
+                    }
+
+                    try {
+                        customerRegister.updateStorage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }),
+
+                SelectionOption.create("Pay Installment", () -> {
+                    Customer customer = customerRegister.getCustomers().get(0);
+
+                    customer.payLeases(0, 1, PaymentType.cash);
+
+                    try {
+                        customerRegister.updateStorage();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Report", () -> {
                     Report report = customerRegister.generateReport(LocalDate.now());
 //                    CustomerRegister.printReport(new Report(customerRegister.getCustomers().toArray(new Customer[0])));
-                    CustomerRegister.printReport(report);
+//                    CustomerRegister.printReport(report);
+                    System.out.println(report.toString());
+                    return null;
+                }),
+                SelectionOption.create("Cycle display", () -> {
+                    System.out.println(motorcyclesRegister.getMotorcycles().get(0).toDetailString());
                     return null;
                 }),
                 SelectionOption.create("All Names", () -> {
@@ -111,7 +150,7 @@ public class Main {
         try {
             customerRegister.addCustomer(Customer.create());
         } catch (InvalidObjectException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
 
         System.out.println(customerRegister);

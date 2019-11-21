@@ -12,6 +12,7 @@ import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
 import com.cerberus.sale.exceptions.DateSegmentError;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -236,5 +237,13 @@ public class Customer {
             segments--;
         }
 
+    }
+
+    /**
+     * @return formatted string representing the persons whole history
+     */
+    public String toDetailString() {
+        // TODO implement this method
+        throw new NotImplementedException();
     }
 }

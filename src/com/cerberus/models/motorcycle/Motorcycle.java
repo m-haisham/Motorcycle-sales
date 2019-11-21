@@ -1,7 +1,10 @@
 package com.cerberus.models.motorcycle;
 
+import com.cerberus.models.helpers.StringHelper;
+import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.engine.Engine;
 import com.cerberus.models.motorcycle.engine.CylinderVolume;
+import javafx.geometry.Side;
 
 import java.util.UUID;
 
@@ -78,11 +81,95 @@ public class Motorcycle {
         return engineType;
     }
 
-//    /**
-//     * Sets price of motorcycle
-//     * @param _price amount to be set
-//     */
-//    public void setPrice(double _price) {
-//        price = _price;
-//    }
+    public String toDetailString() {
+
+        StringBuilder builder = new StringBuilder();
+
+        int width = StringHelper.width;
+        String indent = StringHelper.create(" ", 2);
+
+        String seperator = StringHelper.create("-", width);
+        String leading, spacer, trailing;
+        SidedLine line;
+
+        Engine engine = this.getEngineType();
+
+        builder.append(seperator).append("\n");
+
+        leading = indent + this.getName().toUpperCase();
+        builder.append(leading).append("\n");
+
+        builder.append(seperator).append("\n");
+
+        /* main body */
+
+        builder.append(new SidedLine(
+                width,
+                "PRICE",
+                "RF " + StringHelper.formatMoney(this.getPrice())
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "BRAND",
+                this.getBrand().toString()
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "TRANSMISSION",
+                this.getTransmissionType().toString()
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "TANK CAPACITY",
+                StringHelper.formatMoney(this.getGasolineTankCapacity()) + " Ltr"
+        ).toString());
+
+        builder.append("\n");
+
+        builder.append(new SidedLine(
+                width,
+                "OIL CAPACITY",
+                StringHelper.formatMoney(engine.getOilCapacity()) + " Ltr"
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "STROKES",
+                String.valueOf(engine.getStrokes())
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "COOLING",
+                engine.getCooling().toString()
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "CYLINDER ARRANGEMENT",
+                engine.getCylinderArrangement().toString()
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "CYLINDER VOLUME",
+                engine.getCylinderVolume().toString()
+        ).toString());
+
+        builder.append(new SidedLine(
+                width,
+                "FUEL SYSTEM",
+                engine.getFuelSystem().toString()
+        ).toString());
+
+        builder.append(seperator).append("\n");
+        builder.append(seperator).append("\n");
+
+        return builder.toString();
+
+    }
+
 }
