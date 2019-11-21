@@ -34,6 +34,8 @@ public class Main {
 
     public static MotorcyclesRegister motorcyclesRegister;
 
+    public static boolean debug = true;
+
     public static void main(String[] args) throws IOException {
 
 
@@ -54,14 +56,54 @@ public class Main {
             e.printStackTrace();
         }*/
 
-
+        /* initiations */
         customerRegister = CustomerRegister.fromFile(customersFile);
         motorcyclesRegister = MotorcyclesRegister.fromFile(motorcyclesFile);
 
+        // app entry point
+        if (!debug) app();
+        else debug();
+
+    }
+
+    private static void app() {
+        AtomicBoolean exit = new AtomicBoolean(false);
+
+        SelectionMenu menu = SelectionMenu.create("Main Menu", new SelectionItem[] {
+                SelectionOption.create("Customer", () -> { amCustomer(); return null; }),
+                SelectionOption.create("Retailer", () -> { amRetailer(); return null; }),
+                SelectionOption.create("Back", () -> { exit.set(true); return null; })
+        });
+
+        while (!exit.get()) {
+            menu.prompt();
+        }
+
+        /* on application exit */
+
+        // save state
+        try {
+            customerRegister.updateStorage();
+            motorcyclesRegister.updateStorage();
+        } catch (IOException e) {
+            e.printStackTrace(); // for debugging
+//            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void amCustomer() {
+
+    }
+
+    private static void amRetailer() {
+
+    }
+
+    private static void debug() {
 
         AtomicBoolean exit = new AtomicBoolean(false);
 
-        SelectionMenu mainmenu = SelectionMenu.create("Main Menu", new SelectionItem[] {
+        SelectionMenu debugMenu = SelectionMenu.create("Debug Menu", new SelectionItem[] {
 
                 SelectionOption.create("Add new Customer", () -> {
                     addCustomer();
@@ -116,19 +158,26 @@ public class Main {
                 SelectionSeperator.empty(),
                 SelectionOption.create("Report", () -> {
                     Report report = customerRegister.generateReport(LocalDate.now());
-//                    CustomerRegister.printReport(new Report(customerRegister.getCustomers().toArray(new Customer[0])));
-//                    CustomerRegister.printReport(report);
-                    System.out.println(report.toString());
+                    System.out.println(report);
                     return null;
                 }),
                 SelectionOption.create("Cycle display", () -> {
-                    System.out.println(motorcyclesRegister.getMotorcycles().get(0).toDetailString());
+
+                    SelectionMenu catalogueMenu = SelectionMenu.create("Motorcycles", motorcyclesRegister.toSelectionList());
+
+                    int option = catalogueMenu.promptNoAction();
+
+                    System.out.println(motorcyclesRegister.getMotorcycles().get(option).toDetailString());
                     return null;
                 }),
-                SelectionOption.create("All Names", () -> {
-                    customerRegister.getCustomers().forEach(it -> {
-                        System.out.println(it.getFullName());
-                    });
+                SelectionOption.create("Customer display", () -> {
+
+                    SelectionMenu customerMenu = SelectionMenu.create("Customers", customerRegister.toSelectionList());
+
+                    int option = customerMenu.promptNoAction();
+
+                    System.out.println(customerRegister.getCustomers().get(option).toDetailString());
+
                     return null;
                 }),
                 SelectionSeperator.empty(),
@@ -140,9 +189,10 @@ public class Main {
         });
 
         while (!exit.get()) {
-            mainmenu.prompt();
+            debugMenu.prompt();
         }
 
+        // on application exit
     }
 
     public static void addCustomer() {
@@ -153,6 +203,5 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        System.out.println(customerRegister);
     }
 }

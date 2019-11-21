@@ -1,5 +1,6 @@
 package com.cerberus.register;
 
+import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.customer.event.Event;
 import com.cerberus.models.customer.event.InstallmentEvent;
@@ -144,6 +145,20 @@ public class CustomerRegister {
         new FileWriter(storage) {{
             write(json);
         }}.close();
+
+    }
+
+    public SelectionOption[] toSelectionList() {
+
+        ArrayList<SelectionOption> items = new ArrayList<>();
+
+        this.getCustomers().forEach(customer -> {
+            items.add(
+                    SelectionOption.create(customer.getFullName(), () -> null)
+            );
+        });
+
+        return items.toArray(new SelectionOption[0]);
 
     }
 

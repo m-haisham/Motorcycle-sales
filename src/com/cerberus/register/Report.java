@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 public class Report {
 
     /**
-     * Generated time
+     * report time
      */
     private final LocalDate date;
     public LocalDate getDate() {

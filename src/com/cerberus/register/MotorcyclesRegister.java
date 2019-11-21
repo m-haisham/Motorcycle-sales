@@ -1,5 +1,7 @@
 package com.cerberus.register;
 
+import com.cerberus.input.selection.SelectionItem;
+import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.helpers.GsonHelper;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.google.gson.Gson;
@@ -97,6 +99,20 @@ public class MotorcyclesRegister {
         new FileWriter(storage) {{
             write(json);
         }}.close();
+
+    }
+
+    public SelectionOption[] toSelectionList() {
+
+        ArrayList<SelectionOption> items = new ArrayList<>();
+
+        this.getMotorcycles().forEach(motorcycle -> {
+            items.add(
+                    SelectionOption.create(motorcycle.getName(), () -> null)
+            );
+        });
+
+        return items.toArray(new SelectionOption[0]);
 
     }
 
