@@ -65,8 +65,8 @@ public class CustomerRegister {
     public void addCustomer(Customer customer, boolean update) throws InvalidObjectException {
 
         // check if it exists
-        if (this.getByID(customer.getNationalId()) == -1)
-            throw new InvalidObjectException("Customer wtih ID already exists.");
+        if (this.getByID(customer.getNationalId()) != -1)
+            throw new InvalidObjectException("Customer with ID already exists.");
 
         // add
         this.getCustomers().add(customer);

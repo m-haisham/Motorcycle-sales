@@ -3,7 +3,6 @@ package com.cerberus;
 import com.cerberus.input.selection.*;
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.customer.PaymentType;
-import com.cerberus.models.customer.PurchaseType;
 import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
@@ -39,24 +38,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-
-        /*Customer customer = new Customer("Jon", "Doe", "A258771", LocalDate.parse("2001-08-16"));
-        Motorcycle cycle = new Motorcycle(
-                "Honda",
-                81000,
-                MotorcycleTransmissionType.Manual,
-                MotorcycleBrand.Honda,
-                MotorcycleCylinderVolume.v150
-        );
-
-        customer.addEvent(new PaymentEvent(cycle, PurchaseType.purchase, PaymentType.cash));
-
-        try {
-            customer.setLease(new ArrayList<>());
-        } catch (MaxLeaseExceedException e) {
-            e.printStackTrace();
-        }*/
-
         /* initiations */
         customerRegister = CustomerRegister.fromFile(customersFile);
         motorcyclesRegister = MotorcyclesRegister.fromFile(motorcyclesFile);
@@ -71,8 +52,7 @@ public class Main {
         AtomicBoolean exit = new AtomicBoolean(false);
 
         SelectionMenu menu = SelectionMenu.create("Main Menu", new SelectionItem[] {
-                SelectionOption.create("Customer", () -> { amCustomer(); return null; }),
-                SelectionOption.create("Retailer", () -> { amRetailer(); return null; }),
+                SelectionOption.create("Catalogue", () -> { return null; }),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Back", () -> { exit.set(true); return null; })
         });
@@ -91,39 +71,6 @@ public class Main {
             e.printStackTrace(); // for debugging
 //            System.out.println(e.getMessage());
         }
-    }
-
-    private static void amCustomer() {
-
-        AtomicBoolean loop = new AtomicBoolean(true);
-
-        SelectionMenu customerMenu = SelectionMenu.create("Menu", new SelectionItem[]{
-                SelectionOption.create("Browse", () -> {
-
-                    motorcyclesRegister.getMotorcycles().forEach(motorcycle -> {
-                        System.out.println(motorcycle.toDetailString());
-                        System.out.println();
-                    });
-
-                    System.out.print("Press enter to continue ...");
-                    new Scanner(System.in).nextLine();
-
-                    return null;
-                }),
-                SelectionSeperator.empty(),
-                SelectionOption.create("Back", () -> {
-                    loop.set(false);
-                    return null;
-                })
-        });
-
-        while (loop.get())
-            customerMenu.prompt();
-
-    }
-
-    private static void amRetailer() {
-
     }
 
     private static void debug() {
