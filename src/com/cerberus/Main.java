@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.time.LocalDate;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -72,6 +73,7 @@ public class Main {
         SelectionMenu menu = SelectionMenu.create("Main Menu", new SelectionItem[] {
                 SelectionOption.create("Customer", () -> { amCustomer(); return null; }),
                 SelectionOption.create("Retailer", () -> { amRetailer(); return null; }),
+                SelectionSeperator.empty(),
                 SelectionOption.create("Back", () -> { exit.set(true); return null; })
         });
 
@@ -92,6 +94,31 @@ public class Main {
     }
 
     private static void amCustomer() {
+
+        AtomicBoolean loop = new AtomicBoolean(true);
+
+        SelectionMenu customerMenu = SelectionMenu.create("Menu", new SelectionItem[]{
+                SelectionOption.create("Browse", () -> {
+
+                    motorcyclesRegister.getMotorcycles().forEach(motorcycle -> {
+                        System.out.println(motorcycle.toDetailString());
+                        System.out.println();
+                    });
+
+                    System.out.print("Press enter to continue ...");
+                    new Scanner(System.in).nextLine();
+
+                    return null;
+                }),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Back", () -> {
+                    loop.set(false);
+                    return null;
+                })
+        });
+
+        while (loop.get())
+            customerMenu.prompt();
 
     }
 

@@ -2,20 +2,11 @@ package com.cerberus.register;
 
 import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.customer.Customer;
-import com.cerberus.models.customer.event.Event;
-import com.cerberus.models.customer.event.InstallmentEvent;
-import com.cerberus.models.customer.event.LeaseEvent;
-import com.cerberus.models.customer.event.PurchaseEvent;
 import com.cerberus.models.helpers.GsonHelper;
-import com.cerberus.models.helpers.StringHelper;
-import com.cerberus.models.motorcycle.Motorcycle;
-import com.cerberus.sale.Installment;
 import com.google.gson.Gson;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -74,10 +65,8 @@ public class CustomerRegister {
     public void addCustomer(Customer customer, boolean update) throws InvalidObjectException {
 
         // check if it exists
-        for (Customer it : this.getCustomers()) {
-            if (it.getNationalId().equals(customer.getNationalId()))
-                throw new InvalidObjectException("Customer wtih ID already exists.");
-        }
+        if (this.getByID(customer.getNationalId()) == -1)
+            throw new InvalidObjectException("Customer wtih ID already exists.");
 
         // add
         this.getCustomers().add(customer);
@@ -93,6 +82,24 @@ public class CustomerRegister {
                 this.getCustomers().remove(this.getCustomers().size() - 1);
             }
         }
+    }
+
+    /**
+     * Searches the list iteratively to find customer
+     * @param id to match
+     * @return returns first matching customer index else -1 in case of no match
+     */
+    public int getByID(String id) {
+
+        for (int i = 0; i < getCustomers().size(); i++) {
+            Customer customer = getCustomers().get(i);
+
+            if (id.equalsIgnoreCase(customer.getNationalId()))
+                return i;
+
+        }
+
+        return -1;
     }
 
     /**
