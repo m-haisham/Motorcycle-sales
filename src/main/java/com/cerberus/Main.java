@@ -342,15 +342,24 @@ public class Main {
             int length = RangeMenu.create("Input length of lease period.", Lease.minLeasePeriod, Lease.maxLeasePeriod).promptNoAction();
 
             lease = new Lease(motorcyclesRegister.getMotorcycles().get(motorcycleIndex.get()), length);
-        }
 
-        /* cash or card */
-        SelectionMenu.create("Payment Type", new SelectionItem[]{
-                SelectionOption.create("Cash", (idx) -> paymentType.set(PaymentType.cash)),
-                SelectionOption.create("Card", (idx) -> paymentType.set(PaymentType.card)),
-                SelectionSeperator.empty(),
-                SelectionOption.create("Cancel", (idx) -> exit.set(true))
-        }).prompt();
+            // last leash
+            ConfirmMenu confirm = ConfirmMenu.create("Complete transaction? ");
+
+            confirm.setActionNo(() -> { exit.set(true); return null; });
+
+            confirm.prompt();
+
+        } else {
+            /* cash or card */
+            SelectionMenu.create("Payment Type", new SelectionItem[]{
+                    SelectionOption.create("Cash", (idx) -> paymentType.set(PaymentType.cash)),
+                    SelectionOption.create("Card", (idx) -> paymentType.set(PaymentType.card)),
+                    SelectionSeperator.empty(),
+                    SelectionOption.create("Cancel", (idx) -> exit.set(true))
+            }).prompt();
+
+        }
 
         // if transaction is cancelled
         if (exit.get()) return;
