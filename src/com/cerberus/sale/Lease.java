@@ -8,6 +8,9 @@ import java.util.ArrayList;
 
 public class Lease {
 
+    public static final int minLeasePeriod = 6;
+    public static final int maxLeasePeriod = 24;
+
     private static final float interestRate  = 0.10f;
 
     private double totalPrice;

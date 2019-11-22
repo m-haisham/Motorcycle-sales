@@ -9,6 +9,8 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MotorcyclesRegister {
 
@@ -102,17 +104,12 @@ public class MotorcyclesRegister {
 
     }
 
-    public SelectionOption[] toSelectionList() {
+    public List<SelectionOption> toSelectionList() {
 
-        ArrayList<SelectionOption> items = new ArrayList<>();
-
-        this.getMotorcycles().forEach(motorcycle -> {
-            items.add(
-                    SelectionOption.create(motorcycle.getName(), () -> null)
-            );
-        });
-
-        return items.toArray(new SelectionOption[0]);
+        return getMotorcycles()
+                .stream()
+                .map(motorcycle -> SelectionOption.create(motorcycle.getName(), (index) -> {}))
+                .collect(Collectors.toList());
 
     }
 

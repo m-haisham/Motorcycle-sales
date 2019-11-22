@@ -1,6 +1,7 @@
 package com.cerberus.input.selection;
 
 import com.cerberus.input.Callable;
+import com.cerberus.input.selection.callers.IntegerCaller;
 
 public class SelectionOption implements SelectionItem {
 
@@ -28,25 +29,25 @@ public class SelectionOption implements SelectionItem {
     /**
      * Function to be called when item is selected
      */
-    private Callable<Void> action;
-    public Callable<Void> getAction() {
+    private IntegerCaller action;
+    public IntegerCaller getAction() {
         return this.action;
     }
 
-    public void setAction(Callable<Void> action) {
+    public void setAction(IntegerCaller action) {
         this.action = action;
     }
 
-    protected SelectionOption(String label, Callable<Void> action) {
+    protected SelectionOption(String label, IntegerCaller action) {
         this.label = label;
         this.action = action;
     }
 
-    public static SelectionOption create(String label, Callable<Void> action) {
+    public static SelectionOption create(String label, IntegerCaller action) {
         return new SelectionOption(label, action);
     }
 
-    public static SelectionOption create(String label, Callable<Void> action, String[] matchers) {
+    public static SelectionOption create(String label, IntegerCaller action, String[] matchers) {
         SelectionOption option = new SelectionOption(label, action);
         option.setMatchers(matchers);
         return option;

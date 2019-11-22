@@ -151,7 +151,7 @@ public class SelectionMenu extends Menu {
             this.prompt();
         }
         else if (this.items.get(responseIndex).getClass() == SelectionOption.class)
-            ((SelectionOption) this.items.get(responseIndex)).getAction().call(); // execute function
+            ((SelectionOption) this.items.get(responseIndex)).getAction().call(responseIndex); // execute function
         else {
             System.out.println(this.getFailedMessage());
             this.prompt();

@@ -9,6 +9,9 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomerRegister {
 
@@ -105,8 +108,9 @@ public class CustomerRegister {
     /**
      * generated a report of all sales on month date
      * @param date month of reports to recover
+     * @return Report containing all the transactions of this month
      */
-    public Report generateReport(LocalDate date) {
+    public Report monthlyReport(LocalDate date) {
 
         ArrayList<Customer> customers = new ArrayList<>();
 
@@ -142,6 +146,53 @@ public class CustomerRegister {
     }
 
     /**
+     * generated a report of all sales on year date
+     * @return Report containing all the transactions of this year
+     */
+    public Report yearlyReport(LocalDate date) {
+        return yearlyReport(date.getYear());
+    }
+
+    /**
+     * generated a report of all sales on year date
+     * @param year of reports to recover
+     * @return Report containing all the transactions of this year
+     */
+    public Report yearlyReport(int year) {
+
+        ArrayList<Customer> customers = new ArrayList<>();
+
+        for (Customer customer : getCustomers()) {
+
+            // create a copy of this customer with clean history
+            Customer constrainedCustomer = new Customer(
+                    customer.getFirstName(),
+                    customer.getLastName(),
+                    customer.getNationalId(),
+                    customer.getBirthDate()
+            );
+
+            customer.getHistory().forEach(event -> {
+                boolean yearMatch = event.getDateTime().getYear() == year;
+
+                // if in this month
+                if (yearMatch) {
+                    constrainedCustomer.getHistory().add(event);
+                }
+            });
+
+            // if customer has any history this month
+            if (constrainedCustomer.getHistory().size() != 0)
+                // add
+                customers.add(constrainedCustomer);
+
+        }
+
+        return new Report(customers.toArray(new Customer[0]), LocalDate.of(year, 1, 1));
+
+    }
+
+    /**
      * overwrite current state to storage
      * @throws IOException
      */
@@ -155,17 +206,16 @@ public class CustomerRegister {
 
     }
 
-    public SelectionOption[] toSelectionList() {
+    /**
+     * use promptNoAction function to give this menu functionality
+     * @return list of SeletionOption with cycle name as label and no action
+     */
+    public List<SelectionOption> toSelectionList() {
 
-        ArrayList<SelectionOption> items = new ArrayList<>();
-
-        this.getCustomers().forEach(customer -> {
-            items.add(
-                    SelectionOption.create(customer.getFullName(), () -> null)
-            );
-        });
-
-        return items.toArray(new SelectionOption[0]);
+        return getCustomers()
+                .stream()
+                .map(customer -> SelectionOption.create(customer.getFullName(), (index) -> {}))
+                .collect(Collectors.toList());
 
     }
 

@@ -69,4 +69,8 @@ public class SidedLine {
     public void setTrailing(String trailing) {
         this.trailing = trailing;
     }
+
+    public void setEndLine(boolean endLine) {
+        this.endLine = endLine;
+    }
 }
