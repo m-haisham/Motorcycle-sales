@@ -1,5 +1,8 @@
 package com.cerberus.register;
 
+import com.cerberus.Main;
+import com.cerberus.input.confirm.ConfirmMenu;
+import com.cerberus.input.query.Query;
 import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.helpers.GsonHelper;
@@ -7,10 +10,8 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class CustomerRegister {
@@ -206,6 +207,20 @@ public class CustomerRegister {
 
     }
 
+    public void updateStorageIgnore() {
+
+        String json = gson.toJson(this.getCustomers().toArray());
+
+        try {
+            new FileWriter(storage) {{
+                write(json);
+            }}.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     /**
      * use promptNoAction function to give this menu functionality
      * @return list of SeletionOption with cycle name as label and no action
@@ -219,5 +234,35 @@ public class CustomerRegister {
 
     }
 
+    public int promptId() {
+
+        Query query = Query.create();
+
+        int cIndex = -1;
+        AtomicBoolean shouldContinue = new AtomicBoolean(true);
+
+        // get from existing
+        while (shouldContinue.get()) {
+            String id = query.ask("Enter your ID: ", Scanner::nextLine);
+
+            int idx = this.getByID(id);
+
+            if (idx != -1) {
+
+                // TODO add better checking
+
+                cIndex = idx;
+                break;
+            } else {
+                ConfirmMenu.create("try again? ",
+                        () -> null,
+                        () -> {shouldContinue.set(false); return null; })
+                        .prompt();
+            }
+
+        }
+
+        return cIndex;
+    }
 
 }

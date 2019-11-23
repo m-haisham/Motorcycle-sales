@@ -342,24 +342,15 @@ public class Main {
             int length = RangeMenu.create("Input length of lease period.", Lease.minLeasePeriod, Lease.maxLeasePeriod).promptNoAction();
 
             lease = new Lease(motorcyclesRegister.getMotorcycles().get(motorcycleIndex.get()), length);
-
-            // last leash
-            ConfirmMenu confirm = ConfirmMenu.create("Complete transaction? ");
-
-            confirm.setActionNo(() -> { exit.set(true); return null; });
-
-            confirm.prompt();
-
-        } else {
-            /* cash or card */
-            SelectionMenu.create("Payment Type", new SelectionItem[]{
-                    SelectionOption.create("Cash", (idx) -> paymentType.set(PaymentType.cash)),
-                    SelectionOption.create("Card", (idx) -> paymentType.set(PaymentType.card)),
-                    SelectionSeperator.empty(),
-                    SelectionOption.create("Cancel", (idx) -> exit.set(true))
-            }).prompt();
-
         }
+
+        /* cash or card */
+        SelectionMenu.create("Payment Type", new SelectionItem[]{
+                SelectionOption.create("Cash", (idx) -> paymentType.set(PaymentType.cash)),
+                SelectionOption.create("Card", (idx) -> paymentType.set(PaymentType.card)),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Cancel", (idx) -> exit.set(true))
+        }).prompt();
 
         // if transaction is cancelled
         if (exit.get()) return;
@@ -398,11 +389,80 @@ public class Main {
 
             case lease:
                 customerRegister.getCustomers().get(c).addLease(lease);
+
+                // pay first installment
+                customerRegister.getCustomers().get(c).payLeases(
+                        // last added
+                        customerRegister.getCustomers().get(c).getLeases().size() - 1,
+                        1,
+                        paymentType
+                );
                 break;
         }
 
     }
 
-    private static void customer() {}
-    private static void report() {}
+    private static void customer() {
+
+        AtomicBoolean exit = new AtomicBoolean(false);
+
+        // TODO implement below methods
+        SelectionMenu menu = SelectionMenu.create("Customer", new SelectionItem[]{
+                SelectionOption.create("Add", (index) -> {
+                    try {
+                        customerRegister.addCustomer(Customer.create());
+                    } catch (InvalidObjectException e) {
+                        if (debug) e.printStackTrace();
+                        else System.out.println(e.getMessage());
+                    }
+
+                    customerRegister.updateStorageIgnore();
+                }),
+                SelectionOption.create("Remove", (index) -> {
+
+                    int idx = customerRegister.promptId();
+
+                    if (idx == -1)
+                        return;
+
+                    // remove customer
+                    Customer removed = customerRegister.getCustomers().get(idx);
+                    customerRegister.getCustomers().remove(idx);
+
+                    System.out.println("Successfully remove "+removed.getFullName() + " | " + removed.getNationalId());
+
+                    customerRegister.updateStorageIgnore();
+                }),
+                SelectionOption.create("Modify", (index) -> {
+
+                    int idx = customerRegister.promptId();
+
+                    if (idx == -1)
+                        return;
+
+                    // get modified
+                    Customer modified = customerRegister.getCustomers().get(idx).modify();
+
+                    // set and replace
+                    customerRegister.getCustomers().set(idx, modified);
+
+                    customerRegister.updateStorageIgnore();
+                }),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Installments due", (index) -> {}),
+                SelectionOption.create("Full history", (index) -> {}),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Back", (index) -> exit.set(true)),
+        });
+
+        while (!exit.get()) {
+            menu.prompt();
+        }
+
+    }
+    private static void report() {
+        // TODO monthly [ this | select ]
+        // TODO yearly [ this | select ]
+        // TODO all
+    }
 }

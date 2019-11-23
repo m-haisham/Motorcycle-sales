@@ -33,4 +33,5 @@ public class Query {
         System.out.print(question);
         return caller.call(input);
     }
+
 }

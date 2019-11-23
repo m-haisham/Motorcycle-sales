@@ -73,6 +73,27 @@ public class Customer {
 
     }
 
+    public Customer modify() {
+        Query query = Query.create();
+
+        System.out.println("Customer Form");
+        String firstName = query.ask("First Name (" + this.getFirstName() + "): ", Scanner::nextLine);
+        if (firstName.trim().equalsIgnoreCase("")) firstName = this.getFirstName();
+
+        String lastName = query.ask("Last Name (" + this.getLastName() + "): ", Scanner::nextLine);
+        if (lastName.trim().equalsIgnoreCase("")) lastName = this.getLastName();
+
+        String id = query.ask("National ID (" + this.getNationalId() + "): ", Scanner::nextLine);
+        if (id.trim().equalsIgnoreCase("")) id = this.getNationalId();
+
+        int leastYear = LocalDate.now().minusYears(120).getYear();
+        int year = RangeMenu.create("Year (" + this.getBirthDate().getYear() + ") ", leastYear, LocalDate.now().getYear() - 10).promptNoAction();
+        int month = RangeMenu.create("Month (" + this.getBirthDate().getMonth().getValue() + ") ",1,  DateHelper.getMonths().length).promptNoAction();
+        int day = RangeMenu.create("Day (" + this.getBirthDate().getDayOfMonth() + ") ", 1, DateHelper.getDays(month).length).promptNoAction();
+
+        return new Customer(firstName, lastName, id, LocalDate.of(year, month, day));
+    }
+
     /**
      * getter for {@link #firstName}
      * @return {@link #firstName}
