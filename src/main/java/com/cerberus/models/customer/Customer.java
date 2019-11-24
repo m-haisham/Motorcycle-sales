@@ -401,7 +401,7 @@ public class Customer {
 
             ArrayList<Integer> installmentsDue = lease.installmentsDue();
 
-            builder.append(new SidedLine(width, "LEASE | ON" + formatter.format(lease.getTimeLeased()), "[ " + installmentsDue.size() + " ]"));
+            builder.append(new SidedLine(width, "LEASE | ON " + formatter.format(lease.getTimeLeased()), "[ " + installmentsDue.size() + " ]"));
 
 
             for (Integer integer : installmentsDue) {

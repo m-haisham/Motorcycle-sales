@@ -3,8 +3,13 @@ package com.cerberus;
 import com.cerberus.input.confirm.ConfirmMenu;
 import com.cerberus.input.query.Query;
 import com.cerberus.input.range.RangeMenu;
-import com.cerberus.input.selection.*;
-import com.cerberus.models.customer.*;
+import com.cerberus.input.selection.SelectionItem;
+import com.cerberus.input.selection.SelectionMenu;
+import com.cerberus.input.selection.SelectionOption;
+import com.cerberus.input.selection.SelectionSeperator;
+import com.cerberus.models.customer.Customer;
+import com.cerberus.models.customer.PaymentType;
+import com.cerberus.models.customer.PurchaseType;
 import com.cerberus.models.customer.atomic.AtomicPaymentType;
 import com.cerberus.models.customer.atomic.AtomicPurchaseType;
 import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
@@ -14,8 +19,12 @@ import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
 import com.cerberus.register.Report;
+import com.cerberus.sale.FilteredLease;
 import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
+import com.cerberus.sale.exceptions.DateSegmentError;
+import de.codeshelf.consoleui.prompt.ConsolePrompt;
+import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +32,7 @@ import java.io.InvalidObjectException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,10 +91,10 @@ public class Main {
 
                                     .map(motorcycle -> SelectionOption.create(new SidedLine(
                                             50,
-                                            "",
                                             motorcycle.getName(),
-                                            "RF " + StringHelper.formatMoney(motorcycle.getPrice())
-                                    ) {{ this.setEndLine(false); }} .toString(), (idx) -> {
+                                            "RF " + StringHelper.formatMoney(motorcycle.getPrice()),
+                                            ""
+                                            ) {{ this.setEndLine(false); }} .toString(), (idx) -> {
                                         System.out.println(motorcyclesRegister.getMotorcycles().get(idx).toDetailString());
                                         InputHelper.pause();
                                     }))
@@ -451,6 +461,87 @@ public class Main {
                     customerRegister.updateStorageIgnore();
                 }),
                 SelectionSeperator.empty(),
+                SelectionOption.create("Pay installment", (index) -> {
+                    int idx = customerRegister.promptId();
+
+                    if (idx == -1)
+                        return;
+
+                    Customer customer = customerRegister.getCustomers().get(idx);
+
+                    int leaseNo = -1;
+
+                    if (customer.getLeases().size() > 1) {
+
+                        leaseNo = SelectionMenu.create(
+                                "Select lease",
+
+                                customer.getLeases().stream().map(l -> SelectionOption.create(
+                                        "On " + DateTimeFormatter.ofPattern("dd/MM/yyyy").format(l.getTimeLeased()),
+                                        (ignored) -> {}
+                                )).collect(Collectors.toList())
+
+                        ).promptNoAction();
+
+                    } else if (customer.getLeases().size() == 1) {
+                        leaseNo = 0;
+                    } else {
+                        System.out.println("NO LEASES");
+                        return;
+                    }
+
+                    AtomicBoolean dExit = new AtomicBoolean(false);
+
+                    FilteredLease filteredLease = customer.getLeases().get(leaseNo).filterLeases();
+                    int payFor = RangeMenu.create("Select amount of months to pay for (0 to cancel)", 0, filteredLease.getUnpaid().length).promptNoAction();
+
+                    if (payFor <= 0)
+                        return;
+
+                    // calculate total
+                    double total = 0;
+                    for (int i = 0; i < payFor; i++) {
+                        // whoah hell
+
+                        try {
+                            customer.getLeases().get(leaseNo).getinstallmentSlices()[filteredLease.getUnpaid()[i]].addPenaltyByRate(Lease.getInterestRate());
+                        } catch (DateSegmentError ignored) { }
+
+                        total += customer.getLeases().get(leaseNo).getinstallmentSlices()[filteredLease.getUnpaid()[i]].getAmount();;
+                    }
+
+                    System.out.print(
+                            new SidedLine(
+                                    StringHelper.width,
+                                    "AMOUNT TO BE PAID",
+                                    "RF " + StringHelper.formatMoney(total)
+                            )
+                    );
+                    System.out.println();
+
+                    AtomicPaymentType paymentType = new AtomicPaymentType(PaymentType.cash);
+                    /* Lease or purchase */
+                    SelectionMenu.create("Payment Type", new SelectionItem[]{
+                            SelectionOption.create("Cash", (ignored) -> paymentType.set(PaymentType.cash)),
+                            SelectionOption.create("Card", (ignored) -> paymentType.set(PaymentType.card)),
+                            SelectionSeperator.empty(),
+                            SelectionOption.create("Cancel", (ignored) -> dExit.set(true))
+                    }).prompt();
+
+                    if (dExit.get())
+                        return;
+
+
+
+                    // process payments
+                    customer.payLeases(leaseNo, payFor, paymentType.get());
+
+                    // update data
+                    customerRegister.updateStorageIgnore();
+
+                    System.out.println("Payment successful.");
+
+                }),
                 SelectionOption.create("Installments due", (index) -> {
                     int idx = customerRegister.promptId();
 

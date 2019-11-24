@@ -39,7 +39,7 @@ public class Installment {
 
         int yearsUnpaid = LocalDate.now().getYear() - dueDate.getYear();
         int monthsUnpaid = LocalDate.now().getMonth().getValue() - dueDate.getMonth().getValue();
-        amount = amount * /* full interest percent */(rate * /* months unpaid */(yearsUnpaid * 12 + monthsUnpaid));
+        amount = amount * /* full interest percent */(1 + (rate * /* months unpaid */(yearsUnpaid * 12 + monthsUnpaid)));
         penaltyAdded = true;
     }
 

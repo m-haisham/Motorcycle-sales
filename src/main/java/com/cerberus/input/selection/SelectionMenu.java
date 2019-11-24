@@ -100,6 +100,10 @@ public class SelectionMenu extends Menu {
         });
     }
 
+    public static SelectionMenu create(String label, List<SelectionItem> items) {
+        return create(label, new ArrayList<>(items));
+    }
+
     public static SelectionMenu create(String label, ArrayList<SelectionItem> items) {
         SelectionMenu menu = new SelectionMenu(label, items);
         menu.scan = new Scanner(System.in);
