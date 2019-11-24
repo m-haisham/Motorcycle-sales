@@ -5,15 +5,17 @@ import com.cerberus.models.helpers.StringHelper;
 public class SidedLine {
 
     private int width;
-    private String indent;
+    private String indentStart;
+    private String indentEnd;
     private String leading;
     private String trailing;
 
     private boolean endLine = true;
 
-    public SidedLine(int width, String indent, String leading, String trailing) {
+    public SidedLine(int width, String leading, String trailing, String indent) {
         this.width = width;
-        this.indent = indent;
+        this.indentStart = indent;
+        this.indentEnd = indent;
 
         this.leading = leading;
         this.trailing = trailing;
@@ -21,7 +23,17 @@ public class SidedLine {
 
     public SidedLine(int width, String leading, String trailing) {
         this.width = width;
-        this.indent = "  ";
+        this.indentStart = "  ";
+        this.indentEnd = "  ";
+
+        this.leading = leading;
+        this.trailing = trailing;
+    }
+
+    public SidedLine(int width, String leading, String trailing, String indentStart, String indentEnd) {
+        this.width = width;
+        this.indentStart = indentStart;
+        this.indentEnd = indentEnd;
 
         this.leading = leading;
         this.trailing = trailing;
@@ -32,8 +44,8 @@ public class SidedLine {
 
         StringBuilder builder = new StringBuilder();
 
-        String lead = indent + leading;
-        String trail = trailing + indent;
+        String lead = indentStart + leading;
+        String trail = trailing + indentEnd;
         String spacer = StringHelper.create(" ", this.width - lead.length() - trail.length());
 
         builder.append(lead).append(spacer).append(trail);

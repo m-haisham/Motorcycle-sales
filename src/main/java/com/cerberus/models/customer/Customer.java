@@ -5,6 +5,8 @@ import com.cerberus.input.range.RangeMenu;
 import com.cerberus.models.customer.event.InstallmentEvent;
 import com.cerberus.models.customer.event.LeaseEvent;
 import com.cerberus.models.helpers.DateHelper;
+import com.cerberus.models.helpers.StringHelper;
+import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.cerberus.models.customer.event.Event;
 import com.cerberus.models.customer.event.PurchaseEvent;
@@ -15,6 +17,7 @@ import com.cerberus.sale.exceptions.DateSegmentError;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -258,6 +261,174 @@ public class Customer {
             segments--;
         }
 
+    }
+
+    public String getHistoryDetailed() {
+        StringBuilder builder = new StringBuilder();
+
+        int width = StringHelper.width;
+        String separator = StringHelper.create("-", width);
+        String padding = StringHelper.create(" ", 4);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        builder.append(separator).append("\n");
+        builder.append(
+                new SidedLine(
+                        width,
+                        this.getFullName() + " | HISTORY",
+                        ""
+                )
+        );
+        builder.append(separator).append("\n");
+
+        for (Event event : this.getHistory()) {
+
+            String lineLeading;
+            String lineTrailing;
+            String lineSpacer;
+
+            if (event.getClass() == PurchaseEvent.class) {
+                event = (PurchaseEvent) event;
+
+                Motorcycle cycle = ((PurchaseEvent) event).getMotorcycle();
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                StringHelper.bullet() + " " + "PURCHASE | " + cycle.getName(),
+                                "RF " + StringHelper.formatMoney(cycle.getPrice())
+                        )
+                );
+
+                // payment type
+                builder.append(new SidedLine(width, ((PurchaseEvent) event).getPaymentType().toString(), "", padding));
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                timeFormatter.format(((PurchaseEvent) event).getDateTime()),
+                                "",
+                                padding
+                        )
+                );
+
+            } else if (event.getClass() == LeaseEvent.class) {
+                event = (LeaseEvent) event;
+
+                Motorcycle motorcycle = ((LeaseEvent) event).getLease().getMotorcycle();
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                StringHelper.bullet() + " " + "LEASE | " + motorcycle.getName(),
+                                ((LeaseEvent) event).getLease().getinstallmentSlices().length + " MONTHS"
+                        )
+                );
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                timeFormatter.format(event.getDateTime()),
+                                "",
+                                padding
+                        )
+                );
+
+            } else if (event.getClass() == InstallmentEvent.class) {
+                event = (InstallmentEvent) event;
+
+                Motorcycle motorcycle = ((InstallmentEvent) event).getMotorcycle();
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                StringHelper.bullet() + " " + "INSTALLMENT | " + motorcycle.getName(),
+                                "RF " + StringHelper.formatMoney(((InstallmentEvent) event).getInstallment().getAmount())
+                        )
+                );
+
+                // payment type
+                lineLeading = padding + ((InstallmentEvent) event).getPaymentType();
+
+                builder.append(lineLeading).append("\n");
+                builder.append(
+                    new SidedLine(
+                            width,
+                            ((InstallmentEvent) event).getPaymentType().toString(),
+                            "",
+                            padding
+                    )
+                );
+
+                builder.append(
+                        new SidedLine(
+                                width,
+                                padding + timeFormatter.format(event.getDateTime()),
+                                "",
+                                padding
+                        )
+                );
+
+            }
+
+        }
+
+        builder.append(separator).append("\n");
+        builder.append(separator).append("\n");
+
+        return builder.toString();
+
+    }
+
+    public String getInstallmentsDueDetailed() {
+
+        StringBuilder builder = new StringBuilder();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        int width = StringHelper.width;
+        String separator = StringHelper.create("-", width);
+
+        // header
+        builder.append(separator).append("\n");
+        builder.append(new SidedLine(width, "INSTALLMENTS DUE", ""));
+        builder.append(separator).append("\n");
+
+
+        double total = 0;
+        for (Lease lease :
+                this.getLeases()) {
+
+            ArrayList<Integer> installmentsDue = lease.installmentsDue();
+
+            builder.append(new SidedLine(width, "LEASE | ON" + formatter.format(lease.getTimeLeased()), "[ " + installmentsDue.size() + " ]"));
+
+
+            for (Integer integer : installmentsDue) {
+                Installment slice = lease.getinstallmentSlices()[integer];
+
+                builder.append(
+                        new SidedLine(width,
+                                StringHelper.bullet() + " INSTALLMENT | DUE " + formatter.format(slice.getDueDate()),
+                                "RF " + StringHelper.formatMoney(slice.getAmount()))
+                );
+
+                total += slice.getAmount();
+
+            }
+
+            if (this.getLeases().indexOf(lease) != this.getLeases().size() - 1)
+                builder.append("\n");
+
+        }
+
+        // footer
+        builder.append(separator).append("\n");
+        builder.append(new SidedLine(width, "TOTAL", "RF " + StringHelper.formatMoney(total)));
+        builder.append(separator).append("\n");
+        builder.append(separator).append("\n");
+
+        return builder.toString();
     }
 
     /**

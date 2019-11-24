@@ -14,12 +14,14 @@ import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
 import com.cerberus.register.Report;
+import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -449,8 +451,27 @@ public class Main {
                     customerRegister.updateStorageIgnore();
                 }),
                 SelectionSeperator.empty(),
-                SelectionOption.create("Installments due", (index) -> {}),
-                SelectionOption.create("Full history", (index) -> {}),
+                SelectionOption.create("Installments due", (index) -> {
+                    int idx = customerRegister.promptId();
+
+                    if (idx == -1)
+                        return;
+
+                    Customer customer = customerRegister.getCustomers().get(idx);
+
+                    System.out.println(customer.getInstallmentsDueDetailed());
+
+                }),
+                SelectionOption.create("History", (index) -> {
+                    int idx = customerRegister.promptId();
+
+                    if (idx == -1)
+                        return;
+
+                    System.out.println(
+                            customerRegister.getCustomers().get(idx).getHistoryDetailed()
+                    );
+                }),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Back", (index) -> exit.set(true)),
         });
