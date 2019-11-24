@@ -13,6 +13,7 @@ import com.cerberus.models.customer.PurchaseType;
 import com.cerberus.models.customer.atomic.AtomicPaymentType;
 import com.cerberus.models.customer.atomic.AtomicPurchaseType;
 import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
+import com.cerberus.models.helpers.DateHelper;
 import com.cerberus.models.helpers.InputHelper;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
@@ -20,11 +21,8 @@ import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
 import com.cerberus.register.Report;
 import com.cerberus.sale.FilteredLease;
-import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
 import com.cerberus.sale.exceptions.DateSegmentError;
-import de.codeshelf.consoleui.prompt.ConsolePrompt;
-import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +30,6 @@ import java.io.InvalidObjectException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -572,9 +569,43 @@ public class Main {
         }
 
     }
+
     private static void report() {
-        // TODO monthly [ this | select ]
-        // TODO yearly [ this | select ]
-        // TODO all
+
+
+        AtomicBoolean exit = new AtomicBoolean(false);
+
+        SelectionMenu menu = SelectionMenu.create("Customer", new SelectionItem[]{
+                SelectionOption.create("This month", (ignored) -> {
+                    System.out.println(customerRegister.monthlyReport(LocalDate.now()));
+                }),
+                SelectionOption.create("This Year", (ignored) -> {
+                    System.out.println(customerRegister.yearlyReport(LocalDate.now()));
+                }),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Custom", (ignored) -> {
+
+                    int leastYear = LocalDate.now().minusYears(120).getYear();
+                    int year = RangeMenu.create("Year", leastYear, LocalDate.now().getYear()).promptNoAction();
+
+                    SelectionMenu.create("Pick range", new SelectionItem[] {
+                            SelectionOption.create("Monthly", (idx) -> {
+                                int month = RangeMenu.create("Month",1,  DateHelper.getMonths().length).promptNoAction();
+
+                                System.out.println(customerRegister.monthlyReport(LocalDate.of(year, month, 1)));
+                            }),
+                            SelectionOption.create("Yearly", (idx) -> {
+                                System.out.println(customerRegister.yearlyReport(year));
+                            }),
+                    }).prompt();
+
+                }),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Back", (index) -> exit.set(true)),
+        });
+
+        while (!exit.get()) {
+            menu.prompt();
+        }
     }
 }

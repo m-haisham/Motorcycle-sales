@@ -2,15 +2,15 @@ package com.cerberus.models.customer;
 
 import com.cerberus.input.query.Query;
 import com.cerberus.input.range.RangeMenu;
+import com.cerberus.models.customer.event.Event;
 import com.cerberus.models.customer.event.InstallmentEvent;
 import com.cerberus.models.customer.event.LeaseEvent;
+import com.cerberus.models.customer.event.PurchaseEvent;
+import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.models.helpers.DateHelper;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.Motorcycle;
-import com.cerberus.models.customer.event.Event;
-import com.cerberus.models.customer.event.PurchaseEvent;
-import com.cerberus.models.customer.exceptions.MaxLeaseExceedException;
 import com.cerberus.sale.Installment;
 import com.cerberus.sale.Lease;
 import com.cerberus.sale.exceptions.DateSegmentError;
@@ -347,10 +347,6 @@ public class Customer {
                         )
                 );
 
-                // payment type
-                lineLeading = padding + ((InstallmentEvent) event).getPaymentType();
-
-                builder.append(lineLeading).append("\n");
                 builder.append(
                     new SidedLine(
                             width,
@@ -363,7 +359,7 @@ public class Customer {
                 builder.append(
                         new SidedLine(
                                 width,
-                                padding + timeFormatter.format(event.getDateTime()),
+                                timeFormatter.format(((InstallmentEvent) event).getDateTime()),
                                 "",
                                 padding
                         )
