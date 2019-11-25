@@ -1,16 +1,20 @@
 package com.cerberus.register;
 
-import com.cerberus.Main;
 import com.cerberus.input.confirm.ConfirmMenu;
 import com.cerberus.input.query.Query;
 import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.customer.Customer;
 import com.cerberus.models.helpers.GsonHelper;
+import com.cerberus.models.helpers.StringHelper;
+import com.cerberus.models.helpers.string.SidedLine;
 import com.google.gson.Gson;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -263,6 +267,31 @@ public class CustomerRegister {
         }
 
         return cIndex;
+    }
+
+    public String getAll() {
+
+        StringBuilder builder = new StringBuilder();
+
+        int width = StringHelper.width;
+
+        String separator = StringHelper.create("-", width);
+        String indent = StringHelper.create(" ", 2);
+
+        builder.append(separator).append("\n");
+        builder.append(
+                new SidedLine(width, "ALL CUSTOMERS", "")
+        );
+        builder.append(separator).append("\n");
+
+        getCustomers().forEach(customer -> builder.append(
+                new SidedLine(width, StringHelper.bullet() + " " + customer.getFullName(), customer.getNationalId())
+        ));
+
+        builder.append(separator).append("\n");
+        builder.append(separator).append("\n");
+
+        return builder.toString();
     }
 
 }

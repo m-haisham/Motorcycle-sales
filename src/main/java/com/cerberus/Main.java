@@ -457,6 +457,9 @@ public class Main {
 
                     customerRegister.updateStorageIgnore();
                 }),
+                SelectionOption.create("All", (index) -> {
+                    System.out.println(customerRegister.getAll());
+                }),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Pay installment", (index) -> {
                     int idx = customerRegister.promptId();
