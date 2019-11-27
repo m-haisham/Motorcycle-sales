@@ -45,24 +45,24 @@ public class RangeMenu extends Menu {
 
         int response = scan.nextInt();
 
-        int parsedResponse = this.parseResponse(response);
-        if (parsedResponse == -1) {
+        RangeReturn parsedResponse = this.parseResponse(response);
+        if (!parsedResponse.isValid()) {
             System.out.println(this.getFailedMessage());
-            parsedResponse = this.promptNoAction();
+            parsedResponse.setValue(this.promptNoAction());
         }
 
-        return parsedResponse;
+        return parsedResponse.getValue();
 
     }
 
-    private int parseResponse(int response) {
+    private RangeReturn parseResponse(int response) {
 
         // validity check
-        if (this.min < response && response <= this.max) {
-            return response;
+        if (this.min <= response && response <= this.max) {
+            return new RangeReturn(true, response);
         } else {
             // invalid
-            return -1;
+            return new RangeReturn(false, response);
         }
 
     }
