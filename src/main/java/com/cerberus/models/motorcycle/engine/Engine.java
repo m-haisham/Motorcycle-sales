@@ -1,5 +1,10 @@
 package com.cerberus.models.motorcycle.engine;
 
+import com.cerberus.input.option.EnumMenu;
+import com.cerberus.input.query.Query;
+
+import java.util.Scanner;
+
 public class Engine {
 
     private final float oilCapacity;
@@ -16,6 +21,27 @@ public class Engine {
         this.cylinderArrangement = cylinderArrangement;
         this.cylinderVolume = cylinderVolume;
         this.fuelSystem = fuelSystem;
+    }
+
+    public static Engine create() {
+        Query query = Query.create();
+
+        float oilCapacity = query.ask("Oil capacity", Scanner::nextFloat);
+        int stroked = query.ask("Strokes", Scanner::nextInt);
+        EngineCooling engineCooling = EnumMenu.create(EngineCooling.class).promptNoAction();
+        CylinderArrangement cylinderArrangement = EnumMenu.create(CylinderArrangement.class).promptNoAction();
+        CylinderVolume cylinderVolume = EnumMenu.create(CylinderVolume.class).promptNoAction();
+        FuelSystem fuelSystem = EnumMenu.create(FuelSystem.class).promptNoAction();
+
+        return new Engine(
+                oilCapacity,
+                stroked,
+                engineCooling,
+                cylinderArrangement,
+                cylinderVolume,
+                fuelSystem
+        );
+
     }
 
 

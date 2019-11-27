@@ -1,12 +1,12 @@
 package com.cerberus.models.motorcycle;
 
+import com.cerberus.input.option.EnumMenu;
+import com.cerberus.input.query.Query;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.engine.Engine;
-import com.cerberus.models.motorcycle.engine.CylinderVolume;
-import javafx.geometry.Side;
 
-import java.util.UUID;
+import java.util.Scanner;
 
 /**
  * @author sahaf and yoosuf
@@ -14,7 +14,6 @@ import java.util.UUID;
  */
 public class Motorcycle {
 
-    private final String id;
     private final String name;
     private final double price;
     private final MotorcycleTransmissionType transmissionType;
@@ -38,7 +37,27 @@ public class Motorcycle {
         this.brand = _brand;
         this.engineType = engineType;
         this.gasolineTankCapacity = gasolineTankCapacity;
-        this.id = UUID.randomUUID().toString();
+    }
+
+    public static Motorcycle create() {
+
+        Query query = Query.create();
+
+        String name = query.ask("Name: ", Scanner::nextLine);
+        double price = query.ask("Price: ", Scanner::nextDouble);
+        MotorcycleTransmissionType transmissionType = EnumMenu.create(MotorcycleTransmissionType.class).promptNoAction();
+        MotorcycleBrand motorcycleBrand = EnumMenu.create(MotorcycleBrand.class).promptNoAction();
+        Engine engine = Engine.create();
+        float tankcapacity = query.ask("Tank capacity", Scanner::nextFloat);
+
+        return new Motorcycle(
+                name,
+                price,
+                transmissionType,
+                motorcycleBrand,
+                engine,
+                tankcapacity
+        );
     }
 
     /**

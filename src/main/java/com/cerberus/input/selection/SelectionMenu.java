@@ -38,6 +38,9 @@ public class SelectionMenu extends Menu {
     public void setItems(ArrayList<SelectionItem> items) {
         this.items = items;
     }
+    public <T extends  SelectionItem> void setItems(List<T> items) {
+        setItems(new ArrayList<>(items));
+    }
 
     /**
      * Header function

@@ -17,12 +17,20 @@ import com.cerberus.models.helpers.DateHelper;
 import com.cerberus.models.helpers.InputHelper;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
+import com.cerberus.models.motorcycle.Motorcycle;
 import com.cerberus.register.CustomerRegister;
 import com.cerberus.register.MotorcyclesRegister;
 import com.cerberus.register.Report;
 import com.cerberus.sale.FilteredLease;
 import com.cerberus.sale.Lease;
 import com.cerberus.sale.exceptions.DateSegmentError;
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.gui2.*;
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.screen.TerminalScreen;
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +42,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -115,6 +124,7 @@ public class Main {
                 }),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Customer", (index -> customer())),
+                SelectionOption.create("Motorcycle", (index -> motocycle())),
                 SelectionSeperator.empty(),
                 SelectionOption.create("Report", (index -> report())),
                 SelectionSeperator.empty(),
@@ -571,6 +581,43 @@ public class Main {
             menu.prompt();
         }
 
+    }
+
+    private static void motocycle() {
+        AtomicBoolean exit = new AtomicBoolean(false);
+
+        SelectionMenu menu = SelectionMenu.create("Main Menu", new SelectionItem[] {
+                SelectionOption.create("Add", (index) -> {
+
+                    // create new
+                    Motorcycle motorcycle = Motorcycle.create();
+
+                    motorcyclesRegister.addMotorcycle(motorcycle);
+                }),
+                SelectionOption.create("Remove", (index) -> {
+
+                    System.out.println(motorcyclesRegister.registryDetail());
+
+                    // get index
+                    int remove = RangeMenu.create("Select index to remove", -1, motorcyclesRegister.getMotorcycles().size() - 1).promptNoAction();
+
+                    if (remove == -1) {
+                        return;
+                    }
+
+                    motorcyclesRegister.getMotorcycles().remove(remove);
+
+                    motorcyclesRegister.updateStorageIgnored();
+                }),
+                SelectionSeperator.empty(),
+                SelectionOption.create("Exit", (index) -> {
+                    exit.set(true);
+                })
+        });
+
+        while (!exit.get()) {
+            menu.prompt();
+        }
     }
 
     private static void report() {

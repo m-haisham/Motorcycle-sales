@@ -1,8 +1,9 @@
 package com.cerberus.register;
 
-import com.cerberus.input.selection.SelectionItem;
 import com.cerberus.input.selection.SelectionOption;
 import com.cerberus.models.helpers.GsonHelper;
+import com.cerberus.models.helpers.StringHelper;
+import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.google.gson.Gson;
 
@@ -63,8 +64,8 @@ public class MotorcyclesRegister {
      * removes this customer if storage cant be updated
      * @param motorcycle to add
      */
-    public void addCustomer(Motorcycle motorcycle) {
-        addCustomer(motorcycle, true);
+    public void addMotorcycle(Motorcycle motorcycle) {
+        addMotorcycle(motorcycle, true);
     }
 
     /**
@@ -73,7 +74,7 @@ public class MotorcyclesRegister {
      * @param motorcycle to add
      * @param update whether to check if storage can be updated if so do so
      */
-    public void addCustomer(Motorcycle motorcycle, boolean update) {
+    public void addMotorcycle(Motorcycle motorcycle, boolean update) {
         // add
         this.getMotorcycles().add(motorcycle);
 
@@ -104,12 +105,56 @@ public class MotorcyclesRegister {
 
     }
 
+    /**
+     * overwrite current state to storage
+     * ignores IO exceptions
+     */
+    public void updateStorageIgnored() {
+        try {
+            this.updateStorage();
+        } catch (IOException ignored) {
+//            e.printStackTrace();
+        }
+    }
+
     public List<SelectionOption> toSelectionList() {
 
         return getMotorcycles()
                 .stream()
                 .map(motorcycle -> SelectionOption.create(motorcycle.getName(), (index) -> {}))
                 .collect(Collectors.toList());
+
+    }
+
+    public String registryDetail() {
+        StringBuilder builder = new StringBuilder();
+
+        int width = StringHelper.width;
+
+        String separator = StringHelper.create("-", width);
+
+        builder.append(separator).append("\n");
+
+        builder.append(
+                new SidedLine(width, "DETAILS", "")
+        );
+
+        builder.append(separator).append("\n");
+
+        ArrayList<Motorcycle> motorcycleArrayList = this.getMotorcycles();
+        for (int i = 0; i < motorcycleArrayList.size(); i++) {
+            Motorcycle motorcycle = motorcycleArrayList.get(i);
+
+            builder.append(
+                    new SidedLine(width, motorcycle.getName(),"[ "+ i +" ]")
+            );
+
+        }
+
+        builder.append(separator).append("\n");
+        builder.append(separator).append("\n");
+
+        return builder.toString();
 
     }
 

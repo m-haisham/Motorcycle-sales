@@ -276,7 +276,6 @@ public class CustomerRegister {
         int width = StringHelper.width;
 
         String separator = StringHelper.create("-", width);
-        String indent = StringHelper.create(" ", 2);
 
         builder.append(separator).append("\n");
         builder.append(
