@@ -6,6 +6,7 @@ import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
 import com.cerberus.models.motorcycle.Motorcycle;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -41,14 +42,19 @@ public class MotorcyclesRegister {
      * @return
      * @throws FileNotFoundException
      */
-    public static MotorcyclesRegister fromFile(File file) throws FileNotFoundException {
+    public static MotorcyclesRegister fromFile(File file) throws IOException {
         MotorcyclesRegister register = new MotorcyclesRegister(file);
 
         Gson gson = GsonHelper.create();
 
         // load customers list from json data file
-        Motorcycle[] cArray = gson.fromJson(new FileReader(file), Motorcycle[].class);
-
+        Motorcycle[] cArray = new Motorcycle[0];
+        try {
+            cArray = gson.fromJson(new FileReader(file), Motorcycle[].class);
+        } catch (JsonSyntaxException | IOException e) {
+            GsonHelper.createArrayFile(file);
+            cArray = gson.fromJson(new FileReader(file), Motorcycle[].class);
+        }
         try {
             register.setMotorcycles(new ArrayList<>(Arrays.asList(cArray)));
         } catch (NullPointerException ignored) {

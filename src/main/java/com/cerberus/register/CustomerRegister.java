@@ -8,6 +8,7 @@ import com.cerberus.models.helpers.GsonHelper;
 import com.cerberus.models.helpers.StringHelper;
 import com.cerberus.models.helpers.string.SidedLine;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -40,13 +41,21 @@ public class CustomerRegister {
         this.customers = new ArrayList<>();
     }
 
-    public static CustomerRegister fromFile(File file) throws FileNotFoundException {
+    public static CustomerRegister fromFile(File file) throws IOException {
         CustomerRegister register = new CustomerRegister(file);
 
         Gson gson = GsonHelper.create();
 
         // load customers list from json data file
-        Customer[] cArray = gson.fromJson(new FileReader(file), Customer[].class);
+
+        Customer[] cArray = new Customer[0];
+        try {
+            cArray = gson.fromJson(new FileReader(file), Customer[].class);
+        } catch (JsonSyntaxException | IOException e) {
+            GsonHelper.createArrayFile(file);
+            cArray = gson.fromJson(new FileReader(file), Customer[].class);
+        }
+
         try {
             register.setCustomers(new ArrayList<>(Arrays.asList(cArray)));
         } catch (NullPointerException ignored) {

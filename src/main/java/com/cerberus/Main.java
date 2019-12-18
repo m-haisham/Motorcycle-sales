@@ -35,6 +35,8 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.File;
 import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,6 +69,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         // initialize storate objects
+        customersFile.getParentFile().mkdirs();
+
+        if (!customersFile.exists()) customersFile.createNewFile();
+
         // handles reading of from files using Gson (Json file format)
         customerRegister = CustomerRegister.fromFile(customersFile);
         motorcyclesRegister = MotorcyclesRegister.fromFile(motorcyclesFile);
@@ -425,6 +431,8 @@ public class Main {
                 );
                 break;
         }
+
+        customerRegister.updateStorageIgnore();
 
     }
 
