@@ -12,6 +12,8 @@ import java.util.Scanner;
 
 /**
  * Simple selection menu
+ * Each selection option is a choice
+ * {@link SelectionSeperator} used to separate choices
  */
 public class SelectionMenu extends Menu {
 

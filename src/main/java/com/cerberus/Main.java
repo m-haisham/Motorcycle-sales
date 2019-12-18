@@ -66,7 +66,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        /* initiations */
+        // initialize storate objects
+        // handles reading of from files using Gson (Json file format)
         customerRegister = CustomerRegister.fromFile(customersFile);
         motorcyclesRegister = MotorcyclesRegister.fromFile(motorcyclesFile);
 
@@ -78,6 +79,9 @@ public class Main {
 
     }
 
+    /**
+     * main app entry point
+     */
     private static void app() {
         AtomicBoolean exit = new AtomicBoolean(false);
 
@@ -91,6 +95,10 @@ public class Main {
 
                     // add all motorcycles
                     catalogue.getItems().addAll(new ArrayList<>(
+
+                            // this is a map function that converts motorcycles to SelectionOption
+                            // no actions
+                            // in format [Name                   Cost]
                             motorcyclesRegister
                                     .getMotorcycles()
                                     .stream()
@@ -104,10 +112,10 @@ public class Main {
                                         System.out.println(motorcyclesRegister.getMotorcycles().get(idx).toDetailString());
                                         InputHelper.pause();
                                     }))
-
                                     .collect(Collectors.toList())
                     ));
 
+                    // adding the back button
                     catalogue.getItems().add(SelectionSeperator.empty());
                     catalogue.getItems().add(SelectionOption.create("Back", (idx) -> {
                         exitCatalogue.set(true);
@@ -136,8 +144,7 @@ public class Main {
         }
 
         /* on application exit */
-
-        // save state
+        // save state of the current application
         try {
             customerRegister.updateStorage();
             motorcyclesRegister.updateStorage();
@@ -246,7 +253,7 @@ public class Main {
 
     private static void transaction() {
 
-        // get customer info
+        // variable intializations for later
         AtomicInteger customerIndex = new AtomicInteger(-1);
         AtomicInteger motorcycleIndex = new AtomicInteger(-1);
 
