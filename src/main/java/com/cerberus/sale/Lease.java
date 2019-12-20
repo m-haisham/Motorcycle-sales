@@ -111,7 +111,9 @@ public class Lease {
         ArrayList<Integer> installmentSlicesDue = new ArrayList<>();
         for (int i = 0; i < installmentSlices.length; i++) {
             Installment currentInstallmentSlice = installmentSlices[i];
-            if (Math.abs(currentInstallmentSlice.getDueDate().getMonth().getValue() - currentDate.getMonth().getValue() ) <= 1 // check if any this installment in proximity
+
+            // check if any this installment in proximity
+            if (Math.abs(currentInstallmentSlice.getDueDate().getMonth().getValue() - currentDate.getMonth().getValue() ) <= 1
                     && currentInstallmentSlice.getDueDate().isAfter(currentDate)) { // check if installment date is after
 
                 // due in next 30 days
